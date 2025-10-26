@@ -3,7 +3,7 @@
 ARSO WEATHER & WATER QUALITY INTEGRATION
 Real-time + mock data for Sava River monitoring
 """
-import requests
+pip install requests
 import json
 from datetime import datetime
 from typing import Dict, List, Optional

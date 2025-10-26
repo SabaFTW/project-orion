@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orionov Svetilnik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { background-color: #0f172a; font-family: 'Inter', sans-serif; }
+        #map { height: 600px; width: 100%; border-radius: 0.5rem; border: 1px solid #334155; }
+        .leaflet-popup-content-wrapper { background: rgba(30, 41, 59, 0.9) !important; backdrop-filter: blur(5px); border: 1px solid #475569 !important; color: #e2e8f0 !important; border-radius: 8px !important; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
+        .leaflet-popup-tip { background: rgba(30, 41, 59, 0.9) !important; }
+        .leaflet-popup-close-button { color: #cbd5e1 !important; }
+        .leaflet-control-layers { background: rgba(15, 23, 42, 0.8) !important; backdrop-filter: blur(5px); border: 1px solid #334155 !important; color: #e2e8f0 !important; border-radius: 6px; }
+        .leaflet-control-layers-base label span, .leaflet-control-layers-overlays label span { color: #e2e8f0 !important; }
+        .leaflet-control-attribution a { color: #00f7ff !important; text-decoration: none; }
+        .leaflet-control-attribution { background: rgba(15, 23, 42, 0.7) !important; color: #94a3b8 !important; }
+        .leaflet-control-layers-selector { margin-top: 2px; position: relative; top: 1px; }
+        .export-btn { background-color: #22d3ee; color: #0f172a; border: none; padding: 0.3rem 0.8rem; border-radius: 0.375rem; transition: all 0.2s ease-in-out; font-weight: 600; cursor: pointer; display: inline-block; }
+        .export-btn:hover { background-color: #67e8f9; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0, 247, 255, 0.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .content-page { display: none; animation: fadeIn 0.5s ease-in-out forwards; }
+        .content-page.active { display: block; }
+        .nav-button { transition: all 0.3s ease; }
+        .nav-button.active { border-color: #22d3ee; color: #22d3ee; background-color: rgba(15, 23, 42, 0.5); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 247, 255, 0.2); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        #observable-timeline { min-height: 200px; color: white; padding: 1rem; border: 1px solid #334155; border-radius: 0.5rem; margin-bottom: 2rem; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin: auto; height: 350px; }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+
+    <!-- Glava -->
+    <header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/70 backdrop-blur-lg">
+      <div class="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 sm:w-8 sm:h-8 mr-2 text-cyan-400">
+                <path d="M12 1.5a.75.75 0 01.75.75V7.5h-1.5V2.25A.75.75 0 0112 1.5zM19.06 4.94a.75.75 0 011.06 1.06l-3.808 3.808a.75.75 0 01-1.06-1.06L19.06 4.94zM4.94 4.94a.75.75 0 011.06-1.06l3.808 3.808a.75.75 0 11-1.06 1.06L4.94 4.94zM21.75 12a.75.75 0 01-.75.75h-4.5a.75.75 0 010-1.5h4.5a.75.75 0 01.75.75zM7.5 12.75a.75.75 0 010-1.5h-4.5a.75.75 0 010 1.5h4.5zM12 16.5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5a.75.75 0 01.75-.75zM15.992 15.992a.75.75 0 111.06 1.06l-3.808 3.808a.75.75 0 01-1.06-1.06l3.808-3.808zM8.008 15.992a.75.75 0 011.06-1.06l3.808 3.808a.75.75 0 11-1.06 1.06l-3.808-3.808z"/>
+                 <path fillRule="evenodd" d="M12 5.25a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM1.5 12a10.5 10.5 0 1121 0 10.5 10.5 0 01-21 0z" clipRule="evenodd" />
+              </svg>
+               ORIONOV SVETILNIK
+            </h1>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1 ml-1 sm:ml-2">Projekt za Informacijsko Pravičnost</p>
+          </div>
+           <div class="text-right" id="avg-ehi-display">
+           </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigacija Domen -->
+    <nav id="main-nav" class="sticky top-[77px] sm:top-[93px] z-10 border-b border-slate-800 bg-slate-950/50 backdrop-blur-lg">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex space-x-1 overflow-x-auto scrollbar-hide">
+          <button data-target="page-zemljevid" class="nav-button active flex-shrink-0 flex items-center space-x-2 px-4 sm:px-6 py-4 border-b-2 transition-all border-cyan-400 text-cyan-400 bg-slate-900/50">
+             <span class="hidden sm:inline">🗺️</span>
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M8.166 2.25c.415-.415 1.085-.415 1.5 0l5.25 5.25c.415.415.415 1.085 0 1.5l-2.25 2.25a.75.75 0 00-1.06 1.06l2.25 2.25c.415.415.415 1.085 0 1.5l-5.25 5.25c-.415.415-1.085.415-1.5 0l-5.25-5.25c-.415-.415-.415-1.085 0-1.5l2.25-2.25a.75.75 0 001.06-1.06L2.916 9.06c-.415-.415-.415-1.085 0-1.5l5.25-5.25zm.188 18l4.188-4.188L8.354 11.9l-4.188 4.188 4.188 4.188z" clip-rule="evenodd" /></svg>
+             <span class="font-medium text-sm sm:text-base whitespace-nowrap">Zemljevid Resnice</span>
+           </button>
+           <button data-target="page-casovnica" class="nav-button flex-shrink-0 flex items-center space-x-2 px-4 sm:px-6 py-4 border-b-2 transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30">
+             <span class="hidden sm:inline">⏳</span>
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm.099 15.016a.75.75 0 00-1.098-.996l-4.25-2.25a.75.75 0 000-1.31L11 10.724a.75.75 0 10-.996-1.098l-4.25 2.25a2.25 2.25 0 000 3.93l4.25 2.25a.75.75 0 001.098-.996zM17.25 12a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h4.5a.75.75 0 00.75-.75z" clip-rule="evenodd" /></svg>
+             <span class="font-medium text-sm sm:text-base whitespace-nowrap">Časovna Linija</span>
+           </button>
+           <button data-target="page-omrezja" class="nav-button flex-shrink-0 flex items-center space-x-2 px-4 sm:px-6 py-4 border-b-2 transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30">
+             <span class="hidden sm:inline">🕸️</span>
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M12.378 1.602a.75.75 0 00-.756 0L3.469 6.21a.75.75 0 00-.47.677v6.226a.75.75 0 00.47.677l8.153 4.607a.75.75 0 00.756 0l8.153-4.607a.75.75 0 00.47-.677V6.887a.75.75 0 00-.47-.677L12.378 1.602zM12 7.5c.804 0 1.54.343 2.066.904a.75.75 0 11-1.132.982A2.992 2.992 0 0012 9a2.992 2.992 0 00-1.002-.214.75.75 0 01-1.132-.982A4.483 4.483 0 0112 7.5zm0 9a2.992 2.992 0 00-.934.184.75.75 0 11-.531-1.4a4.483 4.483 0 013.931 0 .75.75 0 11-.531 1.4A2.992 2.992 0 0012 16.5zm3.75-3.75a.75.75 0 111.5 0 6 6 0 01-1.88 4.116.75.75 0 01-1.2-.9 4.5 4.5 0 001.409-3.084.75.75 0 01.171-.132zM8.25 12.75a.75.75 0 10-1.5 0 6 6 0 001.88 4.116.75.75 0 001.2-.9 4.5 4.5 0 01-1.409-3.084.75.75 0 00-.171-.132z"/></svg>
+             <span class="font-medium text-sm sm:text-base whitespace-nowrap">Omrežja Moči</span>
+           </button>
+           <button data-target="page-akcije" class="nav-button flex-shrink-0 flex items-center space-x-2 px-4 sm:px-6 py-4 border-b-2 transition-all border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30">
+             <span class="hidden sm:inline">⚡</span>
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177A.75.75 0 008.38 8.38a8.242 8.242 0 012.86-5.461.75.75 0 00-.136-1.071zM10.5 9.75a.75.75 0 001.139-.675 8.242 8.242 0 012.86-5.461.75.75 0 00-.136-1.071 9.742 9.742 0 00-3.539 6.177.75.75 0 00-.675 1.139zM12 1.5c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 1.5 12 1.5zm0 16.5a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" clip-rule="evenodd" /></svg>
+             <span class="font-medium text-sm sm:text-base whitespace-nowrap">Akcijski Center</span>
+           </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Glavna Vsebina -->
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full">
+        <div id="page-zemljevid" class="content-page active">
+            <!-- Zemljevid Resnice Vsebina -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2">
+                <div class="bg-slate-900 rounded-lg border border-slate-800 p-2 sm:p-6 h-[600px] relative overflow-hidden">
+                   <div id="layer-controls" class="absolute top-4 right-4 bg-slate-950/90 rounded-lg p-3 border border-slate-700 z-[1000]">
+                   </div>
+                   <div id="map-loading" class="flex items-center justify-center h-full hidden">
+                      <p class="text-slate-400 text-lg">🛰️ Nalaganje E-PRTR podatkov...</p>
+                   </div>
+                   <div id="map" class="rounded-md"></div>
+                </div>
+              </div>
+              <div class="space-y-6">
+                <div id="site-details-container">
+                     <div class="bg-slate-900 rounded-lg border border-slate-800 p-6 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-slate-600 mb-4"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /> </svg>
+                        <p class="text-slate-400">Izberite točko na zemljevidu za podrobnosti</p>
+                    </div>
+                </div>
+                <div class="bg-slate-900 rounded-lg border border-slate-800 p-6">
+                  <h4 class="font-bold text-sm mb-3 text-slate-300">LEGENDA</h4>
+                  <div class="space-y-2 text-sm" id="legend-content">
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div id="page-casovnica" class="content-page">
+            <!-- Časovna Linija Vsebina -->
+            <div class="bg-slate-900 rounded-lg border border-slate-800 p-8">
+              <h2 class="text-2xl font-bold mb-6 text-cyan-400">⏳ Časovna Linija: SIJ Group</h2>
+              <p class="text-slate-400 mb-8">Primerjava obljub in dejanskih dogodkov</p>
+              <div id="observable-timeline" class="timeline-container min-h-[200px]">
+                   <h3>ObservableHQ Vizualizacija Časovnice (Placeholder)</h3>
+              </div>
+              <div class="relative mt-8">
+                <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-700 -ml-px"></div>
+                <div class="space-y-8" id="manual-timeline">
+                </div>
+              </div>
+              <div class="mt-8 p-4 bg-slate-800/30 rounded border border-slate-700">
+                <p class="text-sm text-slate-400">
+                  <strong class="text-cyan-400">Kritična Opomba:</strong> EAF tehnologija je bila uvedena leta 1960. "Dekarbonizacija" leta 2024 temelji na že obstoječi tehnologiji, ne na novi inovaciji.
+                </p>
+              </div>
+            </div>
+        </div>
+        <div id="page-omrezja" class="content-page">
+            <!-- Omrežja Moči Vsebina -->
+            <div class="bg-slate-900 rounded-lg border border-slate-800 p-8">
+              <h2 class="text-2xl font-bold mb-6 text-cyan-400">🕸️ Omrežja Moči</h2>
+              <p class="text-slate-400 mb-8">Kartiranje finančnih in političnih povezav</p>
+              <div class="bg-slate-800/30 border border-slate-700 rounded-lg h-64 flex items-center justify-center text-slate-500 mb-8">
+                (Interaktivna D3.js vizualizacija omrežij - v razvoju)
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="connections-grid">
+              </div>
+              <div class="mt-8 p-6 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <h3 class="font-bold text-red-400 mb-2">⚠️ Kritična Ugotovitev</h3>
+                <p class="text-slate-300 text-sm">
+                  Primer Lafarge: Lokalne oblasti so bile popustljive zaradi donacij in delovnih mest. To kaže na sistemski vpliv industrije.
+                </p>
+              </div>
+            </div>
+        </div>
+        <div id="page-akcije" class="content-page">
+            <!-- Akcijski Center Vsebina -->
+             <div class="bg-slate-900 rounded-lg border border-slate-800 p-8">
+              <h2 class="text-2xl font-bold mb-6 text-cyan-400">⚡ Akcijski Center</h2>
+              <p class="text-slate-400 mb-8">Konkretni koraki za državljane</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="actions-grid">
+              </div>
+              <div class="mt-8 p-6 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+                <h3 class="font-bold text-cyan-400 mb-2">💡 Resonančna Formula</h3>
+                <pre class="text-xs text-slate-300 overflow-x-auto bg-slate-900 p-3 rounded">IF (Javne_Obljube > Dejanska_Izvajanja):
+  ZAHTEVAJ: Transparentnost podatkov
+  ORGANIZIRAJ: Državljansko skupino
+  PUBLICIRAJ: Podatke na odprti platformi</pre>
+              </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Noga -->
+    <footer class="border-t border-slate-800 mt-12 py-6 text-center text-slate-500 text-sm">
+      <p>"Resnica ni tisto, kar ti povedo. Resnica je tisto, kar sam najdeš."</p>
+      <p class="mt-2">Projekt Orion • Oktober 2025</p>
+    </footer>
+
+    <script type="module">
+        // --- Podatkovna Baza (Mock Data) ---
+        const mockIndustrialSites = [ { id: 1, name: "SIJ Acroni", location: "Jesenice", lat: 46.4319, lon: 14.0536, type: "Steel Production", emissions: { co2: 196000, nox: 450, sox: 230 }, publicClaim: "51% zmanjšanje emisij do 2030", reality: "11.7% reduction by 2024", ehi: 0.67, year: 2024 }, { id: 2, name: "Lafarge/Holcim", location: "Trbovlje", lat: 46.1547, lon: 15.0497, type: "Cement Production", emissions: { co2: 450000, nox: 890, sox: 620 }, publicClaim: "Trajnostno poslovanje", reality: "Zaprt 2015 po 13-letnem boju", ehi: 0.89, year: 2015 }, { id: 3, name: "Ljubljana Čistilna", location: "Ljubljana", lat: 46.0569, lon: 14.5058, type: "Wastewater Treatment", emissions: { nitrates: 1.64, phosphorus: 0.42 }, publicClaim: "Zelena prestolnica Evrope", reality: "Najvišja konc. nitratov na Savi", ehi: 0.69, year: 2024 }, { id: 4, name: "Cinkarna Celje", location: "Celje", lat: 46.2361, lon: 15.2676, type: "Chemical Industry", emissions: { pb: 15, zn: 18, dust: 9550 }, publicClaim: "10% footprint reduction by 2030", reality: "-15% heavy metals since 2015", ehi: 0.60, year: 2024 }, { id: 5, name: "Krško NE", location: "Krško", lat: 45.9381, lon: 15.5151, type: "Nuclear Power", emissions: { thermal: "+2-3°C", radioactive: "<1 μSv" }, publicClaim: "Carbon neutrality by 2050", reality: "Minimal radioactive releases", ehi: 0.42, year: 2024 } ];
+        const sijTimeline = [ { year: 1960, event: "EAF tehnologija uvedena", type: "tech" }, { year: 2020, event: "Zaveza: -51% emisij do 2030", type: "promise" }, { year: 2023, event: "ResponsibleSteel certifikacija", type: "pr" }, { year: 2024, event: "EBRD posojilo €230M za 'dekarbonizacijo'", type: "funding" }, { year: 2025, event: "Dejanske emisije: ?", type: "reality" } ];
+        const connections = [ { from: "SIJ Group", to: "EU Financiranje", amount: "€230M", type: "funding" }, { from: "SIJ Group", to: "ResponsibleSteel", amount: "Certifikacija", type: "certification" }, { from: "Lafarge/Holcim", to: "Lokalne Oblasti", amount: "Donacije + Jobs", type: "influence" }, { from: "EU", to: "Slovenija", amount: "Green Deal", type: "policy" } ];
+        const actions = [ { title: "Zahtevaj Podatke", description: "Uporabi Zakon o dostopu do informacij javnega značaja (ZDIJZ)", steps: ["Kontaktiraj ARSO", "Zahtevaj monitoring podatke Save", "Pripravljen obrazec na voljo"], difficulty: "Enostavno" }, { title: "Neodvisno Merjenje", description: "Organiziraj lokalno kemično analizo vode", steps: ["Kontakt z lokalnimi laboratoriji", "Vzorči vodo iz Save", "Primerjaj z uradnimi podatki"], difficulty: "Zmerno" }, { title: "Politični Pritisk", description: "Kontaktiraj lokalne poslance in okoljske odbore", steps: ["Seznam odgovornih poslancev", "Predlogi konkretnih vprašanj", "Organizacija pisnih zahtev"], difficulty: "Zmerno" }, { title: "Medijska Kampanja", description: "Deli podatke in rezultate javno", steps: ["Kontakt z investigativnimi novinarji", "Objava na družbenih omrežjih", "Organizacija okrogle mize"], difficulty: "Zahtevno" } ];
+        const savaPath = [ [46.4319, 14.0536], [46.2361, 15.2676], [46.1547, 15.0497], [46.0569, 14.5058], [45.9381, 15.5151] ];
+
+        // --- Stanje Aplikacije ---
+        let activeDomain = 'page-zemljevid';
+        let selectedSite = null;
+        let layerVisibility = { promises: true, reality: true, networks: false };
+        let mapInstance = null;
+        let mapMarkers = [];
+        let savaPolyline = null;
+        let mapLayerControls = null;
+
+        // --- Pomožne Funkcije ---
+        const fetchIndustrialData = async () => { console.log("Simulating E-PRTR fetch..."); await new Promise(resolve => setTimeout(resolve, 500)); return mockIndustrialSites; };
+        const playClickSound = () => { console.log("Beep! (Zvok)"); };
+         function exportToCSV(data, siteName) {
+            const dataArray = Array.isArray(data) ? data : [data];
+            const flattenedData = dataArray.map(site => {
+                const { emissions, ...rest } = site;
+                const flatEmissions = (typeof emissions === 'object' && emissions !== null) 
+                    ? emissions 
+                    : { error: 'Invalid emission data' }; 
+                return { ...rest, ...flatEmissions };
+            });
+
+            try {
+                const csv = Papa.unparse(flattenedData, { header: true });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `orion-data-${siteName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error("Napaka pri izvozu CSV:", error);
+                alert("Prišlo je do napake pri izvozu podatkov v CSV.");
+            }
+        }
+         const getMarkerColorClasses = (ehi) => {
+            if (ehi > 0.7) return { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-400' };
+            if (ehi > 0.4) return { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-400' };
+            return { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-400' };
+          };
+
+        // --- DOM Elementi ---
+        const mainNavButtons = document.querySelectorAll('#main-nav button');
+        const contentPages = document.querySelectorAll('.content-page');
+        const avgEhiDisplay = document.getElementById('avg-ehi-display');
+        const mapElement = document.getElementById('map');
+        const mapLoadingElement = document.getElementById('map-loading');
+        const siteDetailsContainer = document.getElementById('site-details-container');
+        const legendContent = document.getElementById('legend-content');
+        const layerControlsContainer = document.getElementById('layer-controls');
+        const observableTimelineContainer = document.getElementById('observable-timeline');
+        const manualTimelineContainer = document.getElementById('manual-timeline');
+        const connectionsGrid = document.getElementById('connections-grid');
+        const actionsGrid = document.getElementById('actions-grid');
+
+        // --- Funkcije za Renderiranje ---
+        function renderAvgEhi() {
+            const avgEHIValue = (mockIndustrialSites.length > 0 ? (mockIndustrialSites.reduce((sum, site) => sum + (site.ehi || 0), 0) / mockIndustrialSites.length) : 0).toFixed(2);
+            let ehiColor = 'text-green-400';
+            let ehiText = 'Nizka Hipokrizija';
+            if (avgEHIValue > 0.7) { ehiColor = 'text-red-400'; ehiText = 'Visoka Hipokrizija'; }
+            else if (avgEHIValue > 0.4) { ehiColor = 'text-yellow-400'; ehiText = 'Zmerna Hipokrizija'; }
+
+            avgEhiDisplay.innerHTML = `
+                <div class="text-xs text-slate-500 font-medium">Povprečni EHI</div>
+                <div class="text-2xl sm:text-3xl font-bold ${ehiColor}">${avgEHIValue}</div>
+                <div class="text-xs text-slate-400 uppercase font-semibold">${ehiText}</div>
+            `;
+        }
+
+        function renderSiteDetails(site) {
+            if (!site) {
+                siteDetailsContainer.innerHTML = `
+                     <div class="bg-slate-900 rounded-lg border border-slate-800 p-6 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-slate-600 mb-4"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /> </svg>
+                        <p class="text-slate-400">Izberite točko na zemljevidu za podrobnosti</p>
+                    </div>`;
+                return;
+            }
+            const colorClasses = getMarkerColorClasses(site.ehi);
+            let emissionsHtml = '';
+             if (site.emissions && typeof site.emissions === 'object') {
+                 emissionsHtml = Object.entries(site.emissions).map(([key, value]) => `
+                    <div class="flex justify-between text-sm">
+                      <span class="text-slate-400 uppercase">${key}:</span>
+                      <span class="font-mono text-slate-200">${typeof value === 'number' ? value.toLocaleString() : value}</span>
+                    </div>
+                `).join('');
+            } else {
+                 emissionsHtml = `<p class="text-sm text-slate-400">Podatki o emisijah niso na voljo.</p>`;
+            }
+
+            siteDetailsContainer.innerHTML = `
+                <div class="bg-slate-900 rounded-lg border border-slate-800 p-6 animate-fadeIn">
+                    <div class="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 class="text-xl font-bold text-cyan-400">${site.name}</h3>
+                        <p class="text-slate-400 text-sm">${site.location}</p>
+                      </div>
+                      <div class="px-3 py-1 rounded text-xs font-bold ${colorClasses.bg} ${colorClasses.text}">
+                        EHI: ${site.ehi}
+                      </div>
+                    </div>
+                    <div class="space-y-4">
+                      <div>
+                        <div class="text-xs text-slate-500 mb-1">🟢 JAVNA OBLJUBA</div>
+                        <div class="bg-green-500/10 border border-green-500/30 rounded p-3 text-sm">
+                          ${site.publicClaim || 'Ni podatka'}
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-xs text-slate-500 mb-1">🔴 DEJANSKA RESNICA</div>
+                        <div class="bg-red-500/10 border border-red-500/30 rounded p-3 text-sm">
+                          ${site.reality || 'Ni podatka'}
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-xs text-slate-500 mb-2">EMISIJE (${site.year || 'N/A'})</div>
+                        <div class="space-y-2">
+                            ${emissionsHtml}
+                        </div>
+                      </div>
+                       <button
+                          class="export-btn w-full mt-4"
+                          onclick="exportSiteData('${site.id}')"
+                        >
+                          Izvozi Podatke za ${site.name}
+                      </button>
+                    </div>
+                 </div>`;
+        }
+        
+        window.exportSiteData = (siteId) => {
+             const site = mockIndustrialSites.find(s => s.id.toString() === siteId);
+             if (site) {
+                 exportToCSV([site], site.name);
+             } else {
+                 console.error("Site not found for export:", siteId);
+                 alert("Napaka: Lokacije ni mogoče najti za izvoz.");
+             }
+         };
+
+        function renderLegend() {
+             legendContent.innerHTML = `
+                <div class="flex items-center space-x-2">
+                  <div class="w-4 h-4 rounded-full ${getMarkerColorClasses(0.8).bg} ${getMarkerColorClasses(0.8).border} border"></div>
+                  <span class="text-slate-400">EHI > 0.7 (Visoka hipokrizija)</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                   <div class="w-4 h-4 rounded-full ${getMarkerColorClasses(0.5).bg} ${getMarkerColorClasses(0.5).border} border"></div>
+                  <span class="text-slate-400">EHI 0.4-0.7 (Zmerna)</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                   <div class="w-4 h-4 rounded-full ${getMarkerColorClasses(0.3).bg} ${getMarkerColorClasses(0.3).border} border"></div>
+                  <span class="text-slate-400">EHI < 0.4 (Nizka)</span>
+                </div>`;
+        }
+        
+        function renderLayerControls() {
+            layerControlsContainer.innerHTML = `
+                 <div class="text-xs font-bold text-slate-300 mb-2">PLASTI</div>
+                 ${Object.entries(layerVisibility).map(([key, visible]) => `
+                  <label class="flex items-center space-x-2 mb-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      data-layer-key="${key}"
+                      ${visible ? 'checked' : ''}
+                      class="layer-checkbox form-checkbox h-4 w-4 text-cyan-500 bg-slate-700 border-slate-600 rounded focus:ring-cyan-600"
+                    />
+                    <span class="text-sm text-slate-300 capitalize">
+                      ${key === 'promises' ? '🌊 Potek Save' : key === 'reality' ? '🔴 Obrati' : '⚪ Omrežja'}
+                    </span>
+                  </label>
+                 `).join('')}`;
+
+            document.querySelectorAll('.layer-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                     const key = event.target.dataset.layerKey;
+                     const isChecked = event.target.checked;
+                     layerVisibility[key] = isChecked;
+                     updateMapLayers();
+                });
+            });
+        }
+        
+        function renderManualTimeline() {
+             manualTimelineContainer.innerHTML = sijTimeline.map(event => {
+                 const typeClasses = {
+                    promise: { bg: 'bg-green-500', border: 'border-green-300', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-white"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>' },
+                    reality: { bg: 'bg-red-500', border: 'border-red-300', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-white"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" /></svg>' },
+                    pr: { bg: 'bg-blue-500', border: 'border-blue-300', icon: '📣' },
+                    funding: { bg: 'bg-yellow-500', border: 'border-yellow-300', icon: '💰' },
+                    tech: { bg: 'bg-slate-500', border: 'border-slate-300', icon: '🔧' }
+                 };
+                 const currentClasses = typeClasses[event.type] || typeClasses.tech;
+                 const typeTextClasses = {
+                     promise: 'bg-green-500/20 text-green-400',
+                     reality: 'bg-red-500/20 text-red-400',
+                     pr: 'bg-blue-500/20 text-blue-400',
+                     funding: 'bg-yellow-500/20 text-yellow-400',
+                     tech: 'bg-slate-500/20 text-slate-400'
+                 };
+                return `
+                    <div class="relative pl-12">
+                      <div class="absolute left-0 w-8 h-8 rounded-full border-4 flex items-center justify-center ${currentClasses.bg} ${currentClasses.border}">
+                         ${currentClasses.icon}
+                      </div>
+                      <div class="ml-4 bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <div class="flex items-center justify-between mb-2">
+                          <span class="font-bold text-cyan-400">${event.year}</span>
+                          <span class="px-2 py-1 rounded text-xs font-bold ${typeTextClasses[event.type] || typeTextClasses.tech}">
+                            ${event.type.toUpperCase()}
+                          </span>
+                        </div>
+                        <p class="text-slate-300">${event.event}</p>
+                      </div>
+                    </div>`;
+            }).join('');
+        }
+        
+        function renderConnections() {
+             connectionsGrid.innerHTML = connections.map(conn => {
+                 const typeClasses = {
+                     funding: 'bg-yellow-500/20 text-yellow-400',
+                     certification: 'bg-blue-500/20 text-blue-400',
+                     influence: 'bg-red-500/20 text-red-400',
+                     policy: 'bg-slate-500/20 text-slate-400'
+                 };
+                 return `
+                    <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <div class="flex items-center justify-between mb-2">
+                          <span class="font-bold text-slate-200">${conn.from}</span>
+                          <span class="text-slate-500 mx-2">→</span>
+                          <span class="font-bold text-cyan-400">${conn.to}</span>
+                        </div>
+                        <div class="text-sm text-slate-400 mb-2">${conn.amount}</div>
+                        <div class="inline-block px-2 py-1 rounded text-xs font-semibold ${typeClasses[conn.type] || typeClasses.policy}">
+                          ${conn.type}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderActions() {
+             actionsGrid.innerHTML = actions.map(action => {
+                  const difficultyClasses = {
+                     Enostavno: 'bg-green-500/20 text-green-400',
+                     Zmerno: 'bg-yellow-500/20 text-yellow-400',
+                     Zahtevno: 'bg-red-500/20 text-red-400'
+                  };
+                  return `
+                    <div class="bg-slate-800/50 rounded-lg p-6 border border-slate-700 flex flex-col">
+                        <div class="flex items-start justify-between mb-4">
+                          <h3 class="font-bold text-lg text-slate-200">${action.title}</h3>
+                          <span class="px-2 py-1 rounded text-xs font-semibold ${difficultyClasses[action.difficulty] || ''}">
+                            ${action.difficulty}
+                          </span>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-4 flex-grow">${action.description}</p>
+                        <ul class="space-y-2">
+                          ${action.steps.map(step => `
+                            <li class="flex items-start space-x-2 text-sm">
+                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                              <span class="text-slate-300">${step}</span>
+                            </li>
+                           `).join('')}
+                        </ul>
+                    </div>`;
+            }).join('');
+        }
+        
+         function renderObservablePlaceholder() {
+            observableTimelineContainer.innerHTML = `<h3>ObservableHQ Vizualizacija Časovnice (Placeholder)</h3>`;
+        }
+
+        // --- Funkcije Zemljevida ---
+        function initMap() {
+             mapInstance = L.map('map').setView([46.1, 14.8], 8);
+             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+             }).addTo(mapInstance);
+             updateMapLayers();
+        }
+        
+        function updateMapLayers() {
+            if (!mapInstance) return;
+
+            mapMarkers.forEach(marker => mapInstance.removeLayer(marker));
+            mapMarkers = [];
+            if (savaPolyline) {
+                mapInstance.removeLayer(savaPolyline);
+                savaPolyline = null;
+            }
+
+            if (layerVisibility.promises) {
+                 savaPolyline = L.polyline(savaPath, { color: '#00f7ff', weight: 4, opacity: 0.6, dashArray: '5, 10' }).addTo(mapInstance);
+            }
+
+            if (layerVisibility.reality) {
+                 fetchIndustrialData().then(sites => {
+                     sites.forEach(site => {
+                        const marker = L.marker([site.lat, site.lon])
+                            .addTo(mapInstance)
+                            .on('mouseover', () => { selectedSite = site; renderSiteDetails(site); })
+                            .on('click', () => { selectedSite = site; renderSiteDetails(site); playClickSound(); });
+                            
+                        const colorClasses = getMarkerColorClasses(site.ehi);
+                        const popupContent = `
+                           <div class="p-2 bg-slate-800 text-slate-100 rounded-lg shadow-lg border border-slate-700 max-w-xs" style="font-family: 'Inter', sans-serif;">
+                              <h3 class="font-bold text-base text-cyan-400 mb-1">${site.name}</h3>
+                              <div class="text-xs font-bold mb-2 px-2 py-0.5 rounded inline-block ${colorClasses.bg} ${colorClasses.text}">
+                                EHI: ${site.ehi}
+                              </div>
+                              <p class="text-xs text-slate-300 mb-1"><strong class="text-green-400">🟢 Obljuba:</strong> ${site.publicClaim || 'Ni podatka'}</p>
+                              <p class="text-xs text-slate-300 mb-3"><strong class="text-red-400">🔴 Resnica:</strong> ${site.reality || 'Ni podatka'}</p>
+                              <button class="export-btn text-xs py-1 px-2" data-site-id="${site.id}">Izvozi Podatke (.csv)</button>
+                            </div>`;
+                        marker.bindPopup(popupContent);
+                        mapMarkers.push(marker);
+                     });
+                     
+                      mapInstance.on('popupopen', function (e) {
+                          const exportButton = e.popup.getElement().querySelector('.export-btn');
+                          if (exportButton) {
+                              const siteId = exportButton.getAttribute('data-site-id');
+                              exportButton.onclick = (event) => {
+                                  event.stopPropagation();
+                                  window.exportSiteData(siteId);
+                              };
+                          }
+                      });
+                 });
+            }
+        }
+
+        // --- Upravljanje Domen ---
+        function setActivePage(targetId) {
+            contentPages.forEach(page => {
+                page.classList.remove('active');
+                if (page.id === targetId) {
+                    page.classList.add('active');
+                }
+            });
+
+            mainNavButtons.forEach(button => {
+                button.classList.remove('active', 'border-cyan-400', 'text-cyan-400', 'bg-slate-900/50');
+                button.classList.add('border-transparent', 'text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-900/30');
+                if (button.dataset.target === targetId) {
+                    button.classList.add('active', 'border-cyan-400', 'text-cyan-400', 'bg-slate-900/50');
+                     button.classList.remove('border-transparent', 'text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-900/30');
+                }
+            });
+            activeDomain = targetId;
+            
+             if (targetId === 'page-zemljevid' && !mapInstance) {
+                 initMap();
+                 renderLayerControls();
+             } else if (targetId === 'page-zemljevid' && mapInstance) {
+                  mapInstance.invalidateSize();
+             } else if (targetId === 'page-casovnica') {
+                 renderManualTimeline();
+                 renderObservablePlaceholder();
+             } else if (targetId === 'page-omrezja') {
+                 renderConnections();
+             } else if (targetId === 'page-akcije') {
+                 renderActions();
+             }
+        }
+
+        // --- Inicializacija ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAvgEhi();
+            renderSiteDetails(null);
+            renderLegend();
+            
+            mainNavButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    setActivePage(button.dataset.target);
+                });
+            });
+
+             if (activeDomain === 'page-zemljevid') {
+                 initMap();
+                 renderLayerControls();
+             }
+             
+             if(activeDomain === 'page-casovnica'){ renderManualTimeline(); renderObservablePlaceholder(); }
+             if(activeDomain === 'page-omrezja'){ renderConnections(); }
+             if(activeDomain === 'page-akcije'){ renderActions(); }
+        });
+
+    </script>
+</body>
+</html>
