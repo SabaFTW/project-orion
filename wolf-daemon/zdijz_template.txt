@@ -1,0 +1,97 @@
+ZADEVA: Zahteva za dostop do okoljskih informacij (ZDIJZ)
+
+Spoštovani,
+
+Na podlagi Zakona o dostopu do informacij javnega značaja (ZDIJZ, Uradni list RS, št. 51/06) 
+in Uredbe (EU) 2016/679 (GDPR) vam posredujem naslednjo zahtevo za dostop do okoljskih podatkov:
+
+=============================================================
+1. ZAHTEVANI PODATKI
+=============================================================
+
+A) MERSKE POSTAJE:
+   - Podnart (SI_01_003) - Sava, 46.4319°N, 14.0536°E
+   - Otoče (SI_02_007) - Sava Bohinjka, 46.1547°N, 15.0497°E
+   - Okroglo (SI_01_008) - Sava, 45.9381°N, 15.5151°E
+
+B) PARAMETRI:
+   - Nitrati (NO3) v mg/L - mesečna povprečja
+   - Svinec (Pb) v μg/L - mesečna povprečja
+   - Živo srebro (Hg) v μg/kg biota (ribje tkivo) - letna povprečja
+   - Temperatura vode (°C) - dnevna povprečja
+   - Skupni dušik (N) v t/leto - letni izpusti
+
+C) ČASOVNO OBDOBJE:
+   - 1. januar 2024 - 31. december 2025 (ali najnovejši razpoložljivi podatki)
+
+D) FORMAT PODATKOV:
+   - CSV ali Excel (.xlsx)
+   - Vključite metapodatke: datum meritve, metoda analize, meja zaznavnosti (LOD)
+
+=============================================================
+2. NAMEN ZAHTEVE
+=============================================================
+
+Javni nadzor nad kakovostjo površinskih voda na reki Savi v okviru državljanskega 
+monitoringa okoljskih pogojev. Podatki bodo uporabljeni za:
+- Primerjavo s cilji Vodne direktive EU (2000/60/ES)
+- Vrednotenje učinkovitosti ukrepov za zmanjšanje obremenitev
+- Javno objavo na odprtokodni platformi za ekološko transparentnost
+
+=============================================================
+3. PRAVNA PODLAGA
+=============================================================
+
+- Člen 3 ZDIJZ: Dostop do okoljskih informacij je prost
+- Uredba (ES) 1367/2006: Pravica javnosti do okoljskih informacij
+- Direktiva 2003/4/ES: Okoljske informacije morajo biti dostopne brez navajanja interesa
+
+=============================================================
+4. ROK ZA ODGOVOR
+=============================================================
+
+V skladu s členom 25 ZDIJZ zahtevam dostop do podatkov v roku 20 delovnih dni 
+od prejema te zahteve. Če so podatki kompleksni, prosim za obrazloženo podaljšanje.
+
+=============================================================
+5. KONTAKTNI PODATKI
+=============================================================
+
+Ime/Organizacija: [VAŠE_IME_ALI_ORGANIZACIJA]
+E-naslov: [VAŠ_EMAIL]
+Telefon: [VAŠ_TELEFON] (opcijsko)
+
+=============================================================
+6. DODATNA OPOMBA
+=============================================================
+
+Če zgornji podatki niso na voljo v zahtevani obliki, prosim za:
+- Seznam razpoložljivih parametrov za navedene postaje
+- Časovno pokritost obstoječih podatkov
+- Alternativne formate podatkov (npr. JSON, XML)
+
+Zahvaljujem se vam za hitro obravnavo te zahteve in prispevek k transparentnosti 
+okoljskih informacij v Republiki Sloveniji.
+
+Lep pozdrav,
+[VAŠE_IME]
+
+=============================================================
+PRILOŽENO: [Če je relevantno, npr. pooblastilo organizacije]
+=============================================================
+
+---
+
+NAVODILA ZA UPORABO:
+1. Kopirajte zgornje besedilo v nov email
+2. Nadomestite [VAŠE_IME], [VAŠ_EMAIL], [VAŠ_TELEFON] s svojimi podatki
+3. Pošljite na: info@arso.gov.si
+4. Zadeva emaila: "ZDIJZ Zahteva - Kakovost vode Sava 2024-2025"
+5. Shranite kopijo emaila za evidenco
+
+OPOZORILO:
+- ARSO ima 20 delovnih dni za odgovor (člen 25 ZDIJZ)
+- Če ne odgovorijo, lahko vložite pritožbo na Informacijskega pooblaščenca RS
+- Podatki so javni in brezplačni (člen 3 ZDIJZ)
+
+Za vprašanja: github.com/SabaFTW/project-orion/issues
