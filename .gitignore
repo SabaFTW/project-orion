@@ -63,3 +63,12 @@ coverage/
 # Optional research assets (uncomment if needed)
 # Dumps/research/*.pdf
 # Dumps/audio/*.mp3
+
+# VES nerve infrastructure (allow scaffolding but ignore generated logs)
+!ves-elysia-portal/
+!ves-elysia-portal/execute_nerve.py
+!ves-elysia-portal/.gitignore
+!ves-elysia-portal/logs/
+!ves-elysia-portal/logs/.gitkeep
+!ves-elysia-portal/memory/
+!ves-elysia-portal/memory/.gitkeep
