@@ -1,101 +1,56 @@
-<<<<<<< HEAD
 # Dependencies
 node_modules/
 venv/
+env/
+.venv/
 __pycache__/
+.Python
 
 # Build outputs
-dist/
 build/
+dist/
 *.pyc
+*.py[cod]
+*$py.class
+*.so
+*.min.js
+*.min.css
 
-# Environment
-.env
-.env.local
-.env.production
-
-# Vercel
-.vercel/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Testing
-coverage/
-.nyc_output/
-
-# Python additional
-=======
-# Node modules
-node_modules/
+# Package managers / logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
 
-# Python
-__pycache__/
->>>>>>> fa16a39 ([CODEX+GEMINI]: Complete implementation - Automation v2.0 + Visual System v1.0\n\n🧠 CODEX AUTOMATION (v2.0):\n- ✅ lyra-automation-UPGRADE.py (production pipeline)\n  - Sentiment-based EHI scoring\n  - Smart coordinate extraction\n  - React TypeScript sync\n  - CLI interface (--scan, --add, --force, --backup)\n\n- ✅ raziskave.json (9 raziskav total)\n  - Holcim Emissions Crisis (EHI: 0.70)\n  - NEK 2 Upgrade Brief (EHI: 0.40)\n  - SIJ Greenwashing (EHI: 0.70)\n  - + 6 more entries\n\n- ✅ React sync files\n  - src/data/raziskave.json (JSON data)\n  - src/types/raziskava.ts (TypeScript types)\n\n- ✅ Research seeds (Dumps/research/)\n  - holcim-emissions.md\n  - nek-upgrade.md\n  - sij-greenwashing.md\n\n- ✅ HTML pages (raziskave/*/index.html)\n  - 7x generated research detail pages\n\n🎨 GEMINI VISUAL SYSTEM (v1.0):\n- ✅ design-tokens.css (CSS variables)\n  - Color palette (6 colors, dark mode)\n  - Typography system (Inter fonts)\n  - EHI color coding (4 levels)\n  - Spacing & responsive variables\n\n- ✅ ResearchCard.tsx component\n  - 350px width layout\n  - Category + EHI badges\n  - Promise/Reality preview\n  - Location + Date metadata\n  - Hover states with lift effect\n\n- ✅ index.css (updated)\n  - Import design tokens\n  - Google Fonts (Inter, JetBrains Mono)\n  - Custom utilities\n\n- ✅ .gitignore (proper exclusions)\n\nDESIGN PHILOSOPHY:\n- Professional but approachable\n- Data shines (high contrast colors)\n- Fast-loading (minimal assets)\n- Credible (journalist vibe)\n\nREADY FOR:\n- Dashboard layout implementation\n- Data visualization styling\n- Mobile responsive testing\n- Production deployment\n\n🛰️ Projekt Orion - Full Stack Implementation COMPLETE\n\nCredits:\n- [CODEX]: Automation upgrade\n- [GEMINI]: Visual system design\n- [DESKTOP-CLAUDE]: File coordination)
-*.py[cod]
-*$py.class
-*.so
-.Python
-<<<<<<< HEAD
-env/
-.venv/
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
 
-# Build outputs additional
-*.min.js
-*.min.css
+# Hosting metadata
+.vercel/
 
-=======
-venv/
-env/
-.venv/
-
-# IDEs
+# IDE / Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+# OS artifacts
 .DS_Store
 Thumbs.db
 desktop.ini
 .directory
 
-# Build outputs
-dist/
-build/
-*.min.js
-*.min.css
-
-# Logs
+# Logs & coverage
 *.log
 logs/
+coverage/
+.nyc_output/
 
-# Environment
-.env
-.env.local
-.env.*.local
-
->>>>>>> fa16a39 ([CODEX+GEMINI]: Complete implementation - Automation v2.0 + Visual System v1.0\n\n🧠 CODEX AUTOMATION (v2.0):\n- ✅ lyra-automation-UPGRADE.py (production pipeline)\n  - Sentiment-based EHI scoring\n  - Smart coordinate extraction\n  - React TypeScript sync\n  - CLI interface (--scan, --add, --force, --backup)\n\n- ✅ raziskave.json (9 raziskav total)\n  - Holcim Emissions Crisis (EHI: 0.70)\n  - NEK 2 Upgrade Brief (EHI: 0.40)\n  - SIJ Greenwashing (EHI: 0.70)\n  - + 6 more entries\n\n- ✅ React sync files\n  - src/data/raziskave.json (JSON data)\n  - src/types/raziskava.ts (TypeScript types)\n\n- ✅ Research seeds (Dumps/research/)\n  - holcim-emissions.md\n  - nek-upgrade.md\n  - sij-greenwashing.md\n\n- ✅ HTML pages (raziskave/*/index.html)\n  - 7x generated research detail pages\n\n🎨 GEMINI VISUAL SYSTEM (v1.0):\n- ✅ design-tokens.css (CSS variables)\n  - Color palette (6 colors, dark mode)\n  - Typography system (Inter fonts)\n  - EHI color coding (4 levels)\n  - Spacing & responsive variables\n\n- ✅ ResearchCard.tsx component\n  - 350px width layout\n  - Category + EHI badges\n  - Promise/Reality preview\n  - Location + Date metadata\n  - Hover states with lift effect\n\n- ✅ index.css (updated)\n  - Import design tokens\n  - Google Fonts (Inter, JetBrains Mono)\n  - Custom utilities\n\n- ✅ .gitignore (proper exclusions)\n\nDESIGN PHILOSOPHY:\n- Professional but approachable\n- Data shines (high contrast colors)\n- Fast-loading (minimal assets)\n- Credible (journalist vibe)\n\nREADY FOR:\n- Dashboard layout implementation\n- Data visualization styling\n- Mobile responsive testing\n- Production deployment\n\n🛰️ Projekt Orion - Full Stack Implementation COMPLETE\n\nCredits:\n- [CODEX]: Automation upgrade\n- [GEMINI]: Visual system design\n- [DESKTOP-CLAUDE]: File coordination)
-# Temporary files
+# Temp / cache
 *.tmp
 *.temp
 .cache/
@@ -104,10 +59,7 @@ logs/
 *.backup
 *.bak
 *.old
-<<<<<<< HEAD
 
-# Research data (optional - configure per need)
+# Optional research assets (uncomment if needed)
 # Dumps/research/*.pdf
 # Dumps/audio/*.mp3
-=======
->>>>>>> fa16a39 ([CODEX+GEMINI]: Complete implementation - Automation v2.0 + Visual System v1.0\n\n🧠 CODEX AUTOMATION (v2.0):\n- ✅ lyra-automation-UPGRADE.py (production pipeline)\n  - Sentiment-based EHI scoring\n  - Smart coordinate extraction\n  - React TypeScript sync\n  - CLI interface (--scan, --add, --force, --backup)\n\n- ✅ raziskave.json (9 raziskav total)\n  - Holcim Emissions Crisis (EHI: 0.70)\n  - NEK 2 Upgrade Brief (EHI: 0.40)\n  - SIJ Greenwashing (EHI: 0.70)\n  - + 6 more entries\n\n- ✅ React sync files\n  - src/data/raziskave.json (JSON data)\n  - src/types/raziskava.ts (TypeScript types)\n\n- ✅ Research seeds (Dumps/research/)\n  - holcim-emissions.md\n  - nek-upgrade.md\n  - sij-greenwashing.md\n\n- ✅ HTML pages (raziskave/*/index.html)\n  - 7x generated research detail pages\n\n🎨 GEMINI VISUAL SYSTEM (v1.0):\n- ✅ design-tokens.css (CSS variables)\n  - Color palette (6 colors, dark mode)\n  - Typography system (Inter fonts)\n  - EHI color coding (4 levels)\n  - Spacing & responsive variables\n\n- ✅ ResearchCard.tsx component\n  - 350px width layout\n  - Category + EHI badges\n  - Promise/Reality preview\n  - Location + Date metadata\n  - Hover states with lift effect\n\n- ✅ index.css (updated)\n  - Import design tokens\n  - Google Fonts (Inter, JetBrains Mono)\n  - Custom utilities\n\n- ✅ .gitignore (proper exclusions)\n\nDESIGN PHILOSOPHY:\n- Professional but approachable\n- Data shines (high contrast colors)\n- Fast-loading (minimal assets)\n- Credible (journalist vibe)\n\nREADY FOR:\n- Dashboard layout implementation\n- Data visualization styling\n- Mobile responsive testing\n- Production deployment\n\n🛰️ Projekt Orion - Full Stack Implementation COMPLETE\n\nCredits:\n- [CODEX]: Automation upgrade\n- [GEMINI]: Visual system design\n- [DESKTOP-CLAUDE]: File coordination)

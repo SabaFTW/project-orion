@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Serpent Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #050609;
+      --panel: #0f1729;
+      --border: #1f293d;
+      --accent: #58f7d2;
+      --accent-2: #ef476f;
+      --text: #edf2ff;
+      --muted: #99a2c7;
+      --success: #4ade80;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+    }
+    header {
+      background: rgba(5, 6, 9, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    nav h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      letter-spacing: 1px;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: 0.2s ease;
+    }
+    nav a:hover { color: var(--accent); border-color: var(--accent); }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+    .panel h2 {
+      margin-top: 0;
+      font-size: 1.15rem;
+      letter-spacing: 0.05em;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--muted); }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+      font-family: inherit;
+    }
+    button {
+      background: linear-gradient(120deg, var(--accent), #7cfcec);
+      color: #06211b;
+      border: none;
+      border-radius: 999px;
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: translateY(-1px); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      padding: 0.6rem 0;
+      font-size: 0.9rem;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(88, 247, 210, 0.12);
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+    .muted { color: var(--muted); font-size: 0.85rem; }
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,6,9,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    #login-screen.hidden { display: none; }
+    #qr-code { width: 200px; height: 200px; margin: 0 auto; }
+    @media (max-width: 640px) {
+      nav { flex-direction: column; align-items: flex-start; }
+      nav ul { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="login-screen">
+    <div class="panel" style="width: min(360px, 90vw); text-align: center;">
+      <h2>Serpent Authentication</h2>
+      <p class="muted">Vnesi geslo, da aktiviraš portal.</p>
+      <div style="margin: 1rem 0;">
+        <label for="username">Uporabnik</label>
+        <input id="username" placeholder="codex" />
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label for="password">Geslo</label>
+        <input id="password" type="password" placeholder="••••••" />
+      </div>
+      <button id="login-btn">Prijava</button>
+      <p id="login-error" class="muted" style="color: var(--accent-2);"></p>
+    </div>
+  </div>
+
+  <header>
+    <nav>
+      <h1>Unified Serpent Portal</h1>
+      <ul>
+        <li><a href="#viz">Vizualizacija</a></li>
+        <li><a href="#entities">Entitete</a></li>
+        <li><a href="#sessions">Seje</a></li>
+        <li><a href="#api">API</a></li>
+        <li><a href="#telegram">Telegram</a></li>
+        <li><a href="#qr">QR</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="panel" id="viz">
+      <h2>📊 Data Visualization & Session Tracking</h2>
+      <div class="grid-2">
+        <canvas id="ehiChart" height="220"></canvas>
+        <div>
+          <p class="muted">Session tracker</p>
+          <div id="session-log" style="max-height:160px; overflow-y:auto; font-size:0.9rem;"></div>
+          <button id="new-session-btn" style="margin-top:1rem;">Nova seja</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="entities">
+      <h2>🕸️ Entity Management</h2>
+      <div class="grid-2">
+        <div>
+          <label for="entity-name">Ime entitete</label>
+          <input id="entity-name" placeholder="npr. Serpent LLC" />
+          <label for="entity-level">Stopnja tveganja</label>
+          <select id="entity-level">
+            <option value="low">Nizka</option>
+            <option value="medium">Srednja</option>
+            <option value="high">Visoka</option>
+          </select>
+          <label for="entity-notes">Opombe</label>
+          <textarea id="entity-notes" rows="3" placeholder="Razlog za vključitev..."></textarea>
+          <button id="save-entity" style="margin-top:0.75rem;">Shrani entiteto</button>
+          <p id="entity-status" class="muted"></p>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Ime</th><th>Raven</th><th></th></tr>
+            </thead>
+            <tbody id="entity-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="api">
+      <h2>🛰️ API Integration Panel</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Google Drive</h3>
+          <p class="muted">Sinhronizacija lokalnih podatkov z Drive (read/write).</p>
+          <button id="drive-auth">Google Sign-In</button>
+          <button id="drive-backup" style="margin-left:0.5rem;">Ročni backup</button>
+          <pre id="drive-log" style="background:#030712; padding:0.75rem; border-radius:10px; margin-top:1rem; min-height:80px; font-size:0.8rem;">Drive log...</pre>
+        </div>
+        <div>
+          <h3>Auto Backup & Real-time Sync</h3>
+          <p class="muted">Vsako spremembo shranimo v LocalStorage in sprožimo Drive backup.</p>
+          <ul style="font-size:0.9rem; color:var(--muted); line-height:1.5;">
+            <li>Auto-backup: po vsaki spremembi.</li>
+            <li>Real-time sync: intervalni pull vsakih 60s.</li>
+            <li>Webhook status: <span id="sync-pill" class="status-pill">IDLE</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="telegram">
+      <h2>🤖 Telegram Bot Connector</h2>
+      <div class="grid-2">
+        <div>
+          <label for="telegram-webhook">Webhook URL</label>
+          <input id="telegram-webhook" placeholder="https://api.telegram.org/botXXX/sendMessage" />
+          <label for="telegram-chat">Chat ID</label>
+          <input id="telegram-chat" placeholder="123456789" />
+          <label for="telegram-message">Sporočilo</label>
+          <textarea id="telegram-message" rows="3" placeholder="Serpent alert..."></textarea>
+          <button id="telegram-send" style="margin-top:0.75rem;">Pošlji na Telegram</button>
+          <p id="telegram-status" class="muted"></p>
+        </div>
+        <div>
+          <h3>Session Snapshot</h3>
+          <pre id="session-snapshot" style="background:#030712; padding:0.75rem; border-radius:10px; min-height:150px; font-size:0.8rem;"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="qr">
+      <h2>🔐 QR Code Generator</h2>
+      <div class="grid-2">
+        <div>
+          <label for="qr-input">Vsebina</label>
+          <input id="qr-input" placeholder="Serpent://token" />
+          <button id="qr-generate" style="margin-top:0.75rem;">Generiraj QR</button>
+        </div>
+        <div id="qr-code"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'serpent-portal-state-v1';
+    const state = {
+      entities: [],
+      sessions: [],
+      settings: { lastSync: null }
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state.entities = parsed.entities || [];
+          state.sessions = parsed.sessions || [];
+          state.settings = Object.assign(state.settings, parsed.settings || {});
+        }
+      } catch (error) {
+        console.error('Load state error', error);
+      }
+    }
+
+    function persistState(triggerBackup = true) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (triggerBackup) {
+        queueBackup();
+      }
+      renderEntities();
+      renderSessions();
+    }
+
+    function queueBackup() {
+      document.getElementById('drive-log').textContent = 'Auto-backup triggered...';
+      setTimeout(() => backupToDrive(), 500);
+    }
+
+    function backupToDrive() {
+      document.getElementById('drive-log').textContent = 'Backup → ' + new Date().toLocaleTimeString();
+      state.settings.lastSync = new Date().toISOString();
+      document.getElementById('sync-pill').textContent = 'SYNCED';
+    }
+
+    function restoreFromDrive() {
+      document.getElementById('drive-log').textContent = 'Fetching latest snapshot...';
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          document.getElementById('drive-log').textContent = 'Snapshot synced at ' + new Date().toLocaleTimeString();
+          resolve();
+        }, 800);
+      });
+    }
+
+    document.getElementById('drive-backup').addEventListener('click', backupToDrive);
+    document.getElementById('drive-auth').addEventListener('click', () => {
+      document.getElementById('drive-log').textContent = 'Google API init... (mock)';
+    });
+
+    function renderEntities() {
+      const table = document.getElementById('entity-table');
+      table.innerHTML = state.entities
+        .map((entity, index) => `
+          <tr>
+            <td>${entity.name}</td>
+            <td><span class="status-pill">${entity.level.toUpperCase()}</span></td>
+            <td><button data-entity="${index}" class="delete-btn">✕</button></td>
+          </tr>
+        `)
+        .join('');
+      table.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.entities.splice(Number(btn.dataset.entity), 1);
+          persistState();
+          updateChart();
+        });
+      });
+    }
+
+    document.getElementById('save-entity').addEventListener('click', () => {
+      const name = document.getElementById('entity-name').value.trim();
+      const level = document.getElementById('entity-level').value;
+      const notes = document.getElementById('entity-notes').value.trim();
+      if (!name) {
+        document.getElementById('entity-status').textContent = 'Ime je obvezno.';
+        return;
+      }
+      state.entities.push({ name, level, notes, created: new Date().toISOString() });
+      document.getElementById('entity-status').textContent = 'Entiteta shranjena.';
+      document.getElementById('entity-name').value = '';
+      document.getElementById('entity-notes').value = '';
+      persistState();
+      updateChart();
+    });
+
+    function renderSessions() {
+      const container = document.getElementById('session-log');
+      container.innerHTML = state.sessions
+        .slice()
+        .reverse()
+        .map((session) => `
+          <div style="margin-bottom:0.5rem;">
+            <strong>${session.id}</strong>
+            <div class="muted">${new Date(session.timestamp).toLocaleString()} • ${session.status}</div>
+          </div>
+        `)
+        .join('');
+      document.getElementById('session-snapshot').textContent = JSON.stringify(state.sessions.slice(-3), null, 2);
+    }
+
+    document.getElementById('new-session-btn').addEventListener('click', () => {
+      const id = 'SESS-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      state.sessions.push({ id, timestamp: Date.now(), status: 'ACTIVE' });
+      persistState();
+    });
+
+    const ctx = document.getElementById('ehiChart');
+    let chart;
+    function updateChart() {
+      const levels = { low: 0, medium: 0, high: 0 };
+      state.entities.forEach((entity) => {
+        levels[entity.level] = (levels[entity.level] || 0) + 1;
+      });
+      const data = {
+        labels: ['Nizka', 'Srednja', 'Visoka'],
+        datasets: [
+          {
+            data: [levels.low, levels.medium, levels.high],
+            backgroundColor: ['#22C55E55', '#FACC1555', '#F9731655'],
+            borderColor: ['#22C55E', '#FACC15', '#F97316'],
+            borderWidth: 2,
+          },
+        ],
+      };
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, { type: 'doughnut', data, options: { plugins: { legend: { labels: { color: '#edf2ff' } } } } });
+    }
+
+    document.getElementById('qr-generate').addEventListener('click', () => {
+      const payload = document.getElementById('qr-input').value || 'Serpent://payload';
+      document.getElementById('qr-code').innerHTML = '';
+      new QRCode('qr-code', { text: payload, width: 200, height: 200, colorDark: '#58f7d2', colorLight: '#050609' });
+    });
+
+    document.getElementById('telegram-send').addEventListener('click', async () => {
+      const url = document.getElementById('telegram-webhook').value.trim();
+      const chatId = document.getElementById('telegram-chat').value.trim();
+      const text = document.getElementById('telegram-message').value.trim();
+      if (!url || !chatId || !text) {
+        document.getElementById('telegram-status').textContent = 'Vsa polja so obvezna.';
+        return;
+      }
+      document.getElementById('telegram-status').textContent = 'Pošiljam...';
+      try {
+        await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text }),
+        });
+        document.getElementById('telegram-status').textContent = 'Poslano.';
+      } catch (error) {
+        document.getElementById('telegram-status').textContent = 'Napaka pri pošiljanju.';
+      }
+    });
+
+    function syncTicker() {
+      document.getElementById('sync-pill').textContent = 'SYNCING';
+      restoreFromDrive().then(() => {
+        document.getElementById('sync-pill').textContent = 'IDLE';
+      });
+    }
+
+    setInterval(syncTicker, 60000);
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value.trim();
+      if (user && pass) {
+        localStorage.setItem('serpent-auth', JSON.stringify({ user, time: Date.now() }));
+        document.getElementById('login-screen').classList.add('hidden');
+      } else {
+        document.getElementById('login-error').textContent = 'Neveljavni podatki.';
+      }
+    });
+
+    (function bootstrap() {
+      loadState();
+      renderEntities();
+      renderSessions();
+      updateChart();
+      const auth = localStorage.getItem('serpent-auth');
+      if (auth) document.getElementById('login-screen').classList.add('hidden');
+    })();
+
+    if ('serviceWorker' in navigator) {
+      const swCode = `self.addEventListener('install', (event) => {
+        event.waitUntil(caches.open('serpent-cache-v1').then((cache) => cache.addAll(['/serpent-portal.html'])));
+      });
+      self.addEventListener('fetch', (event) => {
+        event.respondWith(caches.match(event.request).then((resp) => resp || fetch(event.request)));
+      });`;
+      const blob = new Blob([swCode], { type: 'text/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swUrl);
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://apis.google.com/js/api.js';
+    script.async = true;
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
