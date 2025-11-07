@@ -43,3 +43,117 @@ body {
   z-index: 1;
   border-radius: var(--radius-card);
 }
+
+.research-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-gap);
+  justify-items: center;
+}
+
+@media (max-width: 1024px) {
+  .research-grid {
+    gap: var(--spacing-gap-tablet);
+  }
+}
+
+@media (max-width: 768px) {
+  .research-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-gap-mobile);
+  }
+}
+
+.text-h2 {
+  font-size: var(--text-h2);
+  line-height: var(--line-height-heading);
+  font-family: var(--font-heading);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.timeline {
+  position: relative;
+}
+
+.timeline-list {
+  position: relative;
+  margin-left: 1rem;
+}
+
+.timeline-list::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(15, 204, 206, 0.25), rgba(15, 204, 206, 0.05));
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-left: 2rem;
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.timeline-dot.warning {
+  background: var(--ehi-medium);
+  border-color: rgba(250, 204, 21, 0.4);
+}
+
+.timeline-dot.danger {
+  background: var(--ehi-critical);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.timeline-dot.ok {
+  background: var(--ehi-low);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.timeline-content h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.timeline-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.timeline-ehi {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.map-tooltip {
+  background: #f8fafc;
+  color: #0f172a;
+  border-radius: 8px;
+  border: none;
+  padding: 8px 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}

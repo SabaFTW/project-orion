@@ -1,313 +1,354 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import L from 'leaflet';
+import { useMemo, useState } from 'react';
+import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip as ChartTooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+} from 'chart.js';
+import { Doughnut, Line, Bar } from 'react-chartjs-2';
+import researchData from './data/raziskave.json';
+import ResearchCard from './components/ResearchCard.tsx';
+import { Raziskava } from './types/raziskava.ts';
 
-// Fix Leaflet default icon issue
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-// Types
-interface IndustrialSite {
-  id: number;
-  name: string;
-  location: string;
-  lat: number;
-  lon: number;
-  type: string;
-  emissions: any;
-  publicClaim: string;
-  reality: string;
-  ehi: number;
-  year: number;
-}
-
-// Mock Data
-const mockIndustrialSites: IndustrialSite[] = [
-  {
-    id: 1,
-    name: "SIJ Acroni",
-    location: "Jesenice",
-    lat: 46.4319,
-    lon: 14.0536,
-    type: "Steel Production",
-    emissions: { co2: 196000, nox: 450, sox: 230 },
-    publicClaim: "51% zmanjšanje emisij do 2030",
-    reality: "EAF tehnologija od 1960-ih, ni nova",
-    ehi: 0.62,
-    year: 2024
-  },
-  {
-    id: 2,
-    name: "Lafarge/Holcim",
-    location: "Anhovo",
-    lat: 46.1547,
-    lon: 15.0497,
-    type: "Cement Production",
-    emissions: { co2: 450000, nox: 890, sox: 620 },
-    publicClaim: "Trajnostno poslovanje",
-    reality: "Zaprt 2015 po 13-letnem boju",
-    ehi: 0.89,
-    year: 2015
-  },
-  {
-    id: 3,
-    name: "Ljubljana Čistilna",
-    location: "Ljubljana",
-    lat: 46.0569,
-    lon: 14.5058,
-    type: "Wastewater Treatment",
-    emissions: { nitrates: 1.64, phosphorus: 0.42 },
-    publicClaim: "Zelena prestolnica Evrope",
-    reality: "Najvišja konc. nitratov na Savi",
-    ehi: 0.69,
-    year: 2024
-  },
-  {
-    id: 4,
-    name: "Cinkarna Celje",
-    location: "Celje",
-    lat: 46.2361,
-    lon: 15.2676,
-    type: "Chemical Production",
-    emissions: { co2: 85000 },
-    publicClaim: "Zmanjšanje težkih kovin",
-    reality: "15 t Pb, 18 t Zn letno",
-    ehi: 0.60,
-    year: 2024
-  },
-  {
-    id: 5,
-    name: "NEK Krško",
-    location: "Krško",
-    lat: 45.9381,
-    lon: 15.5151,
-    type: "Nuclear Power",
-    emissions: { co2: 0 },
-    publicClaim: "Safe, minimal impact",
-    reality: "+2-3°C thermal discharge",
-    ehi: 0.42,
-    year: 2024
-  }
-];
-
-// Sava River path
-const savaPath: [number, number][] = [
-  [46.4319, 14.0536],
-  [46.1547, 15.0497],
-  [46.0569, 14.5058],
-  [46.2361, 15.2676],
-  [45.9381, 15.5151]
-];
+ChartJS.register(ArcElement, ChartTooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement);
 
 function App() {
-  const [activeDomain, setActiveDomain] = useState('zemljevid');
-  const [selectedSite, setSelectedSite] = useState<IndustrialSite | null>(null);
+  const raziskave = useMemo(() => researchData as Raziskava[], []);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [ehiFilter, setEhiFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('latest');
 
-  const avgEHI = (mockIndustrialSites.reduce((sum, site) => sum + site.ehi, 0) / mockIndustrialSites.length).toFixed(2);
+  const totalResearch = raziskave.length;
+  const avgEHI = (raziskave.reduce((sum, item) => sum + item.ehi, 0) / totalResearch).toFixed(2);
+  const categories = new Set(raziskave.map((item) => item.category));
+  const totalCategories = categories.size;
+  const timelineEvents = useMemo(
+    () => [...raziskave].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [raziskave],
+  );
+
+  const filteredResearch = useMemo(() => {
+    return raziskave.filter((item) => {
+      const matchesSearch =
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.location?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+      const matchesEhi =
+        ehiFilter === 'all' ||
+        (ehiFilter === 'critical' && item.ehi >= 0.8) ||
+        (ehiFilter === 'high' && item.ehi >= 0.6 && item.ehi < 0.8) ||
+        (ehiFilter === 'medium' && item.ehi >= 0.3 && item.ehi < 0.6) ||
+        (ehiFilter === 'low' && item.ehi < 0.3);
+      return matchesSearch && matchesCategory && matchesEhi;
+    });
+  }, [raziskave, searchQuery, categoryFilter, ehiFilter]);
+
+  const displayedResearch = useMemo(() => {
+    return [...filteredResearch].sort((a, b) => {
+      if (sortBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (sortBy === 'ehi-high-low') return b.ehi - a.ehi;
+      if (sortBy === 'ehi-low-high') return a.ehi - b.ehi;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+  }, [filteredResearch, sortBy]);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    raziskave.forEach((item) => {
+      counts[item.category] = (counts[item.category] || 0) + 1;
+    });
+    return counts;
+  }, [raziskave]);
+
+  const ehiBuckets = useMemo(() => {
+    const buckets = { low: 0, medium: 0, high: 0, critical: 0 };
+    raziskave.forEach((item) => {
+      if (item.ehi >= 0.8) buckets.critical += 1;
+      else if (item.ehi >= 0.6) buckets.high += 1;
+      else if (item.ehi >= 0.3) buckets.medium += 1;
+      else buckets.low += 1;
+    });
+    return buckets;
+  }, [raziskave]);
+
+  const ehiDistributionData = {
+    labels: ['Nizka (0-0.3)', 'Srednja (0.3-0.6)', 'Visoka (0.6-0.8)', 'Kritična (0.8-1.0)'],
+    datasets: [
+      {
+        label: 'Število primerov',
+        data: [ehiBuckets.low, ehiBuckets.medium, ehiBuckets.high, ehiBuckets.critical],
+        backgroundColor: ['#22C55E', '#FACC15', '#F97316', '#EF4444'].map((color) => `${color}33`),
+        borderColor: ['#22C55E', '#FACC15', '#F97316', '#EF4444'],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const categoryChartData = {
+    labels: Object.keys(categoryCounts),
+    datasets: [
+      {
+        label: 'Raziskav',
+        data: Object.values(categoryCounts),
+        backgroundColor: '#0FCCCE33',
+        borderColor: '#0FCCCE',
+        borderWidth: 1,
+        borderRadius: 8,
+      },
+    ],
+  };
+
+  const ehiTrendData = {
+    labels: timelineEvents
+      .slice()
+      .reverse()
+      .map((item) => new Date(item.date).toLocaleDateString('sl-SI')),
+    datasets: [
+      {
+        label: 'EHI',
+        data: timelineEvents
+          .slice()
+          .reverse()
+          .map((item) => item.ehi),
+        borderColor: '#0FCCCE',
+        backgroundColor: 'rgba(15, 204, 206, 0.15)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+      },
+    ],
+  };
+
+  const mapSites = useMemo(
+    () =>
+      raziskave.filter((item) => typeof item.lat === 'number' && typeof item.lon === 'number') as Array<
+        Raziskava & { lat: number; lon: number }
+      >,
+    [raziskave],
+  );
+
+  const mapCenter = mapSites.length ? [mapSites[0].lat, mapSites[0].lon] : [46.05, 14.5];
+
+  const savaPath: [number, number][] = [
+    [46.5, 13.7],
+    [46.3, 14.0],
+    [46.15, 14.4],
+    [45.95, 15.5],
+  ];
+
+  const getEhiColor = (value: number) => {
+    if (value >= 0.8) return '#EF4444';
+    if (value >= 0.6) return '#F97316';
+    if (value >= 0.3) return '#FACC15';
+    return '#22C55E';
+  };
+
+  const getEhiRadius = (value: number) => {
+    if (value >= 0.8) return 18;
+    if (value >= 0.6) return 14;
+    if (value >= 0.3) return 10;
+    return 8;
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/50 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                🛰️ ORIONOV SVETILNIK
-              </h1>
-              <p className="text-slate-400 text-sm mt-1">Projekt za Informacijsko Pravičnost</p>
-            </div>
-            <div className="text-right">
-              <div className="text-xs text-slate-500">Indeks Ekološke Hipokrizije</div>
-              <div className={`text-3xl font-bold ${Number(avgEHI) > 0.6 ? 'text-red-400' : 'text-yellow-400'}`}>
-                {avgEHI}
-              </div>
-              <div className="text-xs text-slate-400">
-                {Number(avgEHI) > 0.6 ? 'VISOKA HIPOKRIZIJA' : 'ZMERNA HIPOKRIZIJA'}
-              </div>
-            </div>
+    <div className="bg-background text-text-primary min-h-screen font-body">
+      <section
+        className="text-center py-20 lg:py-32"
+        style={{ background: 'linear-gradient(180deg, var(--background) 0%, #080b21 100%)' }}
+      >
+        <h1 className="text-h1 font-heading mb-4">🛰️ Projekt Orion</h1>
+        <p className="text-h3" style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>
+          Raziskave Okoljske Hipokrizije
+        </p>
+        <p className="mt-4 max-w-2xl mx-auto">Primerjamo obljube z resničnostjo. S podatki, ne z mnenji.</p>
+        <div className="mt-8 flex justify-center gap-4">
+          <button className="btn-primary">Dodaj Raziskavo</button>
+          <button className="btn-secondary">ZDIJZ Obrazec</button>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
+          <div className="card !py-6">
+            <div className="text-h2 font-bold">{totalResearch}</div>
+            <div className="text-secondary">Raziskav</div>
+          </div>
+          <div className="card !py-6">
+            <div className="text-h2 font-bold">{avgEHI}</div>
+            <div className="text-secondary">Povprečen EHI</div>
+          </div>
+          <div className="card !py-6">
+            <div className="text-h2 font-bold">{totalCategories}</div>
+            <div className="text-secondary">Kategorij</div>
+          </div>
+          <div className="card !py-6">
+            <div className="text-h2 font-bold">48-72h</div>
+            <div className="text-secondary">Čas Analize</div>
           </div>
         </div>
-      </header>
+      </section>
 
-      {/* Simple Nav */}
-      <nav className="border-b border-slate-800 bg-slate-950/30">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-1">
-            <button
-              onClick={() => setActiveDomain('zemljevid')}
-              className={`px-6 py-4 border-b-2 ${activeDomain === 'zemljevid' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400'}`}
-            >
-              🗺️ Zemljevid Resnice
-            </button>
-            <button
-              onClick={() => setActiveDomain('info')}
-              className={`px-6 py-4 border-b-2 ${activeDomain === 'info' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400'}`}
-            >
-              ℹ️ Info
-            </button>
-          </div>
+      <section className="sticky top-0 z-10 py-4 bg-surface/80 backdrop-blur-lg border-y border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-4 items-center">
+          <input
+            type="search"
+            placeholder="🔍 Išči po naslovu, kraju..."
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            className="flex-grow bg-background border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+            className="bg-background border border-slate-700 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="all">Vse Kategorije</option>
+            {[...categories].map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          <select
+            value={ehiFilter}
+            onChange={(event) => setEhiFilter(event.target.value)}
+            className="bg-background border border-slate-700 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="all">EHI (vsi)</option>
+            <option value="critical">Kritičen (0.8+)</option>
+            <option value="high">Visok (0.6-0.8)</option>
+            <option value="medium">Srednji (0.3-0.6)</option>
+            <option value="low">Nizek (0-0.3)</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value)}
+            className="bg-background border border-slate-700 rounded-lg px-4 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="latest">Najprej Najnovejše</option>
+            <option value="oldest">Najprej Najstarejše</option>
+            <option value="ehi-high-low">EHI (visok-nizek)</option>
+            <option value="ehi-low-high">EHI (nizek-visok)</option>
+          </select>
         </div>
-      </nav>
+      </section>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {activeDomain === 'zemljevid' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* MAP */}
-            <div className="lg:col-span-2">
-              <div className="bg-slate-900 rounded-lg border border-slate-800 p-6 h-[600px]">
-                <h2 className="text-xl font-bold mb-4 text-cyan-400">🌊 Sava River - Industrial Sites</h2>
-                <div className="h-[520px] rounded-lg overflow-hidden">
-                  <MapContainer
-                    center={[46.1, 14.8]}
-                    zoom={8}
-                    className="h-full w-full"
-                    style={{ background: '#1e293b' }}
-                  >
-                    <TileLayer
-                      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                      attribution='&copy; CARTO'
-                    />
-                    
-                    {/* Sava River Flow */}
-                    <Polyline
-                      positions={savaPath}
-                      pathOptions={{
-                        color: '#00ff88',
-                        weight: 4,
-                        opacity: 0.8,
-                        dashArray: '8, 8'
-                      }}
-                    />
-                    
-                    {/* Industrial Sites */}
-                    {mockIndustrialSites.map((site) => (
-                      <Marker 
-                        key={site.id} 
-                        position={[site.lat, site.lon]}
-                        eventHandlers={{
-                          click: () => setSelectedSite(site)
-                        }}
-                      >
-                        <Popup>
-                          <div className="text-slate-900 p-2 min-w-[200px]">
-                            <h3 className="font-bold text-lg mb-2">{site.name}</h3>
-                            <div className={`inline-block px-2 py-1 rounded text-xs font-bold mb-2 ${
-                              site.ehi > 0.7 ? 'bg-red-500 text-white' : 
-                              site.ehi > 0.5 ? 'bg-yellow-500 text-black' : 
-                              'bg-green-500 text-white'
-                            }`}>
-                              EHI: {site.ehi}
-                            </div>
-                            <p className="text-sm mt-2"><strong>Lokacija:</strong> {site.location}</p>
-                            <p className="text-sm"><strong>Tip:</strong> {site.type}</p>
-                            <p className="text-sm mt-2 text-green-700"><strong>Obljuba:</strong> {site.publicClaim}</p>
-                            <p className="text-sm text-red-700"><strong>Resnica:</strong> {site.reality}</p>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    ))}
-                  </MapContainer>
-                </div>
-              </div>
+      <section className="max-w-7xl mx-auto px-4 py-12 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="card h-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-h3 font-heading">🌍 Karta Resnice</h3>
+              <span className="text-sm text-text-secondary">Live Leaflet</span>
             </div>
-
-            {/* SIDEBAR */}
-            <div className="space-y-6">
-              {selectedSite ? (
-                <div className="bg-slate-900 rounded-lg border border-slate-800 p-6">
-                  <h3 className="text-xl font-bold text-cyan-400 mb-4">{selectedSite.name}</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-xs text-slate-500 mb-1">🟢 JAVNA OBLJUBA</div>
-                      <div className="bg-green-500/10 border border-green-500/30 rounded p-3 text-sm">
-                        {selectedSite.publicClaim}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-slate-500 mb-1">🔴 DEJANSKA RESNICA</div>
-                      <div className="bg-red-500/10 border border-red-500/30 rounded p-3 text-sm">
-                        {selectedSite.reality}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-slate-500 mb-2">EMISIJE ({selectedSite.year})</div>
-                      <div className="space-y-2">
-                        {Object.entries(selectedSite.emissions).map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-sm">
-                            <span className="text-slate-400 uppercase">{key}:</span>
-                            <span className="font-mono text-slate-200">
-                              {typeof value === 'number' ? value.toLocaleString() : String(value)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-slate-900 rounded-lg border border-slate-800 p-6 text-center">
-                  <div className="text-6xl mb-4">⚠️</div>
-                  <p className="text-slate-400">Klikni na marker za podrobnosti</p>
-                </div>
+            <div className="h-[420px] rounded-xl overflow-hidden border border-slate-800">
+              {typeof window !== 'undefined' && (
+                <MapContainer
+                  center={mapCenter as [number, number]}
+                  zoom={7}
+                  minZoom={6}
+                  maxZoom={12}
+                  style={{ height: '100%', width: '100%' }}
+                  className="leaflet-dark"
+                >
+                  <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; CARTO" />
+                  <Polyline positions={savaPath} pathOptions={{ color: '#0FCCCE', weight: 4, opacity: 0.8, dashArray: '10, 6' }} />
+                  {mapSites.map((site) => (
+                    <CircleMarker
+                      key={site.id}
+                      center={[site.lat, site.lon]}
+                      pathOptions={{ color: getEhiColor(site.ehi), fillColor: getEhiColor(site.ehi), fillOpacity: 0.6 }}
+                      radius={getEhiRadius(site.ehi)}
+                    >
+                      <Tooltip direction="top" offset={[0, -10]} opacity={1} className="map-tooltip">
+                        <div className="font-bold text-slate-900">{site.title}</div>
+                        <div className="text-xs text-slate-700">EHI: {site.ehi}</div>
+                        <div className="text-xs text-slate-500">{site.location || 'Neznana lokacija'}</div>
+                      </Tooltip>
+                    </CircleMarker>
+                  ))}
+                </MapContainer>
               )}
+            </div>
+          </div>
 
-              {/* Legend */}
-              <div className="bg-slate-900 rounded-lg border border-slate-800 p-6">
-                <h4 className="font-bold text-sm mb-3 text-slate-300">LEGENDA</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                    <span className="text-slate-400">EHI &gt; 0.7 (Visoka hipokrizija)</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                    <span className="text-slate-400">EHI 0.4-0.7 (Zmerna)</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <span className="text-slate-400">EHI &lt; 0.4 (Nizka)</span>
-                  </div>
+          <div className="grid gap-6">
+            <div className="card">
+              <h3 className="text-lg font-semibold mb-3 text-primary">EHI trend</h3>
+              <Line
+                data={ehiTrendData}
+                options={{
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, max: 1 },
+                  },
+                }}
+              />
+            </div>
+
+            <div className="card grid gap-6 md:grid-cols-2">
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">EHI distribucija</h3>
+                <Doughnut
+                  data={ehiDistributionData}
+                  options={{
+                    plugins: { legend: { position: 'bottom', labels: { color: '#E8EAED' } } },
+                    cutout: '60%',
+                  }}
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Kategorije</h3>
+                <Bar
+                  data={categoryChartData}
+                  options={{
+                    plugins: { legend: { display: false } },
+                    scales: {
+                      x: { ticks: { color: '#9CA3AF' }, grid: { display: false } },
+                      y: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card timeline">
+          <h3 className="text-lg font-semibold mb-6 text-primary">Časovna linija obljub vs. realnosti</h3>
+          <div className="timeline-list">
+            {timelineEvents.slice(0, 8).map((event) => (
+              <div className="timeline-item" key={event.id}>
+                <div className={`timeline-dot ${event.ehi >= 0.7 ? 'danger' : event.ehi >= 0.4 ? 'warning' : 'ok'}`} />
+                <div className="timeline-content">
+                  <p className="timeline-date">{new Date(event.date).toLocaleDateString('sl-SI')}</p>
+                  <h4>{event.title}</h4>
+                  <p className="text-sm text-text-secondary">{event.promise || event.description}</p>
                 </div>
+                <div className="timeline-ehi">EHI {event.ehi.toFixed(2)}</div>
               </div>
-            </div>
+            ))}
           </div>
-        )}
+        </div>
+      </section>
 
-        {activeDomain === 'info' && (
-          <div className="bg-slate-900 rounded-lg border border-slate-800 p-8">
-            <h2 className="text-2xl font-bold mb-6 text-cyan-400">📊 O Projektu</h2>
-            <div className="space-y-4 text-slate-300">
-              <p>
-                <strong className="text-cyan-400">EHI (Environmental Hypocrisy Index)</strong> meri razkorak med 
-                javnimi obljubami in dejansko okoljsko realnostjo.
-              </p>
-              <p className="text-sm text-slate-400">
-                Formula: (Promise Score - Reality Score) / Promise Score
-              </p>
-              <div className="mt-6 grid md:grid-cols-3 gap-4">
-                {mockIndustrialSites.slice(0, 3).map(site => (
-                  <div key={site.id} className="bg-slate-800/50 rounded p-4 border border-slate-700">
-                    <div className="font-bold text-cyan-400 mb-2">{site.name}</div>
-                    <div className="text-2xl font-bold text-red-400 mb-2">EHI: {site.ehi}</div>
-                    <div className="text-xs text-slate-500">{site.reality}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+      <main className="max-w-7xl mx-auto px-4 py-12">
+        <div className="research-grid">
+          {displayedResearch.map((raziskava) => (
+            <ResearchCard key={raziskava.id} {...raziskava} />
+          ))}
+        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800 mt-12 py-6 text-center text-slate-500 text-sm">
-        <p>"Resnica ni tisto, kar ti povedo. Resnica je tisto, kar sam najdeš."</p>
-        <p className="mt-2">Projekt Orion • Oktober 2025</p>
+      <footer className="text-center py-12 text-text-secondary">
+        <p>Projekt Orion | AETHERON ∞ SHABAD</p>
       </footer>
     </div>
   );
