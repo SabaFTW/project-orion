@@ -35,3 +35,29 @@ yarn-error.log*
 # Testing
 coverage/
 .nyc_output/
+
+# Python additional
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+.venv/
+
+# Build outputs additional
+*.min.js
+*.min.css
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Backups
+*.backup
+*.bak
+*.old
+
+# Research data (optional - configure per need)
+# Dumps/research/*.pdf
+# Dumps/audio/*.mp3
