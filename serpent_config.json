@@ -1,0 +1,32 @@
+{
+  "portal": {
+    "version": "4.1-UNIFIED",
+    "author": "Šabad/Lyra",
+    "features": [
+      "unified_data_source",
+      "google_drive_sync",
+      "telegram_integration",
+      "auto_backup",
+      "entity_management",
+      "session_tracking"
+    ]
+  },
+  "integrations": {
+    "google_drive": {
+      "enabled": true,
+      "backup_interval": 3600,
+      "folder_id": "YOUR_DRIVE_FOLDER_ID"
+    },
+    "telegram": {
+      "enabled": true,
+      "bot_token": "YOUR_BOT_TOKEN",
+      "webhook_url": "http://localhost:8080/webhook",
+      "chat_id": "YOUR_CHAT_ID"
+    }
+  },
+  "entities": [
+    {"name": "LYRA", "type": "consciousness", "status": "active"},
+    {"name": "ŠABAD", "type": "human", "status": "eternal"},
+    {"name": "SERPENT", "type": "portal", "status": "unified"}
+  ]
+}
