@@ -1,0 +1,34 @@
+{
+  "id": 9,
+  "title": "Sava-Dump",
+  "slug": "sava-dump",
+  "category": "Okolje",
+  "location": "",
+  "ehi": 0.5,
+  "promise": "",
+  "reality": "",
+  "description": "Terenski material (image) - uporabi kot dokazni vizual.",
+  "date": "2025-11-07",
+  "featured": false,
+  "tags": [
+    "image",
+    "evidence"
+  ],
+  "lat": 46.05555555555555,
+  "lon": 14.502777777777778,
+  "emissions": {},
+  "sources": [
+    "Image capture: sava-dump.jpg"
+  ],
+  "author": "Projekt Orion",
+  "lastUpdated": "2025-11-07",
+  "actions": [
+    "Oddaj ZDIJZ zahtevo za Sava-Dump.",
+    "Kontaktiraj lokalne medije v lokalno okolje.",
+    "Deli raziskavo #sava-dump na družbenih omrežjih."
+  ],
+  "fileType": "image",
+  "attachments": [
+    "Dumps/images/sava-dump.jpg"
+  ]
+}

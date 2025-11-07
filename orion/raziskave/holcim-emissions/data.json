@@ -1,0 +1,33 @@
+{
+  "id": 7,
+  "title": "Holcim Emissions",
+  "slug": "holcim-emissions",
+  "category": "Energetika",
+  "location": "",
+  "ehi": 0.4,
+  "promise": "",
+  "reality": "",
+  "description": "Eye of Horus\nA stone carving of the Eye of Horus in an ancient Egyptian temple. The Eye of Horus (also known as the Wedjat\nor Udjat) is an iconic symbol from ancient Egypt, representing protection, well-being, and restoration 1 .\nAccording to myth, the sky god Horus lost his left eye in a battle against his uncle, the god Set, but the eye\nwas magically restored by the goddess Hathor (or the god Thoth), making it a symbol of healing and\nwholeness 2 . Ancient Egyptians revered the Eye of Horus as a powerful protective amulet, using it to ward\noff evil and to ensure the health and safety of the wearer 2 .",
+  "date": "2025-11-07",
+  "featured": false,
+  "tags": [
+    "pdf"
+  ],
+  "lat": null,
+  "lon": null,
+  "emissions": {},
+  "sources": [
+    "PDF: holcim-emissions.pdf"
+  ],
+  "author": "Projekt Orion",
+  "lastUpdated": "2025-11-07",
+  "actions": [
+    "Oddaj ZDIJZ zahtevo za Holcim Emissions.",
+    "Kontaktiraj lokalne medije v lokalno okolje.",
+    "Deli raziskavo #holcim-emissions na družbenih omrežjih."
+  ],
+  "fileType": "pdf",
+  "attachments": [
+    "Dumps/pdfs/holcim-emissions.pdf"
+  ]
+}

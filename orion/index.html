@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="sl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Projekt Orion - Svetilnik Informacijske Pravičnosti. Razbijamo monopol nad resnico z interaktivnimi zemljevidi, časovnicami in analizo okoljske hipokrizije.">
+    <meta name="theme-color" content="#0fccce">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Projekt Orion - Svetilnik Informacijske Pravičnosti">
+    <meta property="og:description" content="Primerjamo javne obljube z resničnimi podatki. Interaktivni zemljevidi, EHI indeks, omrežja moči.">
+    <meta property="og:type" content="website">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <title>Projekt Orion | Svetilnik Informacijske Pravičnosti</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+        <nav class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                        🛰️ PROJEKT ORION
+                    </h1>
+                    <p class="text-slate-400 text-xs md:text-sm">Svetilnik Informacijske Pravičnosti</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="installBtn" class="hidden px-4 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg text-sm font-semibold transition">
+                        📱 Namesti
+                    </button>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-500">Povprečni EHI</div>
+                        <div id="avgEHI" class="text-2xl font-bold text-red-400">0.72</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden py-20 px-4">
+        <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-transparent pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto text-center relative z-10">
+            <h2 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
+                Razbijamo Monopol<br>
+                <span class="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    nad Resnico
+                </span>
+            </h2>
+            <p class="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
+                Primerjamo javne obljube z resničnimi podatki. Kartiramo omrežja moči.
+                Omogočamo državljansko ukrepanje.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#zemljevid" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-700 rounded-full font-bold text-lg transition">
+                    Raziskuj Zemljevid →
+                </a>
+                <a href="#raziskave" class="px-8 py-4 border-2 border-cyan-500 hover:bg-cyan-500/10 rounded-full font-bold text-lg transition">
+                    Preglej Raziskave
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="border-b border-slate-800 bg-slate-950/30 sticky top-[73px] z-40">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex overflow-x-auto scrollbar-hide">
+                <button data-tab="zemljevid" class="tab-btn active flex items-center gap-2 px-6 py-4 border-b-2 border-cyan-400 text-cyan-400 whitespace-nowrap">
+                    <span>🗺️</span>
+                    <span class="font-medium">Zemljevid Resnice</span>
+                </button>
+                <button data-tab="casovnica" class="tab-btn flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                    <span>⏳</span>
+                    <span class="font-medium">Časovna Linija</span>
+                </button>
+                <button data-tab="omrezja" class="tab-btn flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                    <span>🕸️</span>
+                    <span class="font-medium">Omrežja Moči</span>
+                </button>
+                <button data-tab="akcije" class="tab-btn flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                    <span>⚡</span>
+                    <span class="font-medium">Akcijski Center</span>
+                </button>
+                <button data-tab="karta" class="tab-btn flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap">
+                    <span>🌍</span>
+                    <span class="font-medium">Karta Resonanc</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Tab Content Containers -->
+        <div id="tab-zemljevid" class="tab-content">
+            <div id="zemljevidContainer"></div>
+        </div>
+
+        <div id="tab-casovnica" class="tab-content hidden">
+            <div id="casovnicaContainer"></div>
+        </div>
+
+        <div id="tab-omrezja" class="tab-content hidden">
+            <div id="omrezjaContainer"></div>
+        </div>
+
+        <div id="tab-akcije" class="tab-content hidden">
+            <div id="akcijeContainer"></div>
+        </div>
+
+        <div id="tab-karta" class="tab-content hidden">
+            <div id="kartaContainer"></div>
+        </div>
+
+        <!-- Featured Research Section -->
+        <section id="raziskave" class="mt-16">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl md:text-4xl font-black mb-4">Featured Raziskave</h3>
+                <p class="text-slate-400 text-lg">Primeri Dvojne Resnice</p>
+            </div>
+            <div id="raziskaveGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 mt-20 py-8 bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left">
+                    <p class="text-slate-400 text-sm">
+                        "Resnica ni tisto, kar ti povejo. Resnica je tisto, kar sam najdeš."
+                    </p>
+                    <p class="text-slate-500 text-xs mt-2">
+                        Projekt Orion • November 2025 • Open Source
+                    </p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="https://github.com/yourusername/orion" target="_blank" class="text-slate-400 hover:text-cyan-400 transition">
+                        GitHub
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-cyan-400 transition">
+                        Kontakt
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-cyan-400 transition">
+                        O Projektu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Main App -->
+    <script src="js/app.js"></script>
+
+    <!-- Components (loaded as modules) -->
+    <script type="text/babel" src="js/components/zemljevid.js"></script>
+    <script type="text/babel" src="js/components/casovnica.js"></script>
+    <script type="text/babel" src="js/components/omrezja.js"></script>
+    <script type="text/babel" src="js/components/akcije.js"></script>
+    <script type="text/babel" src="js/components/karta.js"></script>
+
+</body>
+</html>

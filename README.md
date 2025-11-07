@@ -1,189 +1,202 @@
-# 🜂 PROJECT ORION: Manifest za Informacijsko Pravičnost
+# 🛰️ PROJEKT ORION – Research Hub za Okoljsko Pravičnost
 
-**Cilj**: Razbiti monopol nad resnico z odprto, AI-pogonjeno platformo za ekološko transparentnost.
+**Konsolidirano**: november 2025  \
+**Lokacija**: `/home/saba/Desktop/ProPublica/`  \
+**Status**: 🟢 Aktivno – vsa infrastruktura na enem mestu
 
----
-
-## 🌊 **PLATFORMS**
-
-### **1. Vizualna Karta Resonanc** (`karta-resonanc/`)
-- **Live URL**: `vizualna-karta-resonanc.vercel.app` (coming soon)
-- **Tech**: HTML, Leaflet.js, CSS animations
-- **Features**: 
-  - Animated Sava River flow (green arrows, rotated 120°/160°/220°)
-  - 5 Industrial markers (SIJ, Holcim, Cinkarna, NEK, Ljubljana Čistilna)
-  - Heatmap layers (NO3 38.8 mg/L, Hg 150 μg/kg, Temp +2.74°C)
-  - Inline sources (ARSO 2023/2024, E-PRTR 2023)
-
-### **2. Orionov Svetilnik** (`orion-svetilnik/`)
-- **Live URL**: `orion-svetilnik.vercel.app` (coming soon)
-- **Tech**: React, TypeScript, Vite, Leaflet, Tailwind
-- **Features**:
-  - **AI Analyst Modal**: Simulated LLM Q&A (ready for Anthropic API)
-  - **ZemljevidResnice**: Interactive Leaflet map with EHI markers
-  - **EHI Metrics Dashboard**: Holcim (0.89), SIJ (0.62), Cinkarna (0.60), NEK (0.42)
-  - **Weather Widget**: ARSO integration (mock data: NO3, Pb, Hg, Temp)
-
-### **3. Wolf Daemon** (`wolf-daemon/`)
-- **Purpose**: Backend Python scripts for data collection
-- **Files**:
-  - `arso_connector.py`: ARSO API/mock data fetcher
-  - `zdijz_template.txt`: ZDIJZ (Environmental Data Access) request template
-
-### **4. Social Blitz** (`social-blitz/`)
-- **Campaign Assets**: X threads, Telegram templates, visual memes
-- **Strategy**: 10-post X thread, infographics (EHI bar chart, "Sava Ni Tiha" meme)
+Interaktivna platforma, ki primerja javne obljube z resničnimi podatki, kartira omrežja moči in omogoča državljansko ukrepanje. Spodaj je hiter pregled ključnih modulov, postopkov ter spremljevalnih kampanj.
 
 ---
 
-## 🚀 **QUICK START**
+## 🚀 Hitri start
 
-### **Prerequisites**
-- Node.js 18+ (`node -v`)
-- Python 3.10+ (`python3 --version`)
-- Vercel CLI (`npm i -g vercel`)
-
-### **Deploy Karta Resonanc**
+### Vanilla Orion (HTML/JS)
 ```bash
-cd karta-resonanc
-vercel --prod
+cd /home/saba/Desktop/ProPublica/orion
+python -m http.server 8080
+# Odpri: http://localhost:8080
 ```
 
-### **Deploy Orion Svetilnik**
+### React Orion (Vite + TypeScript)
 ```bash
-cd orion-svetilnik
+cd /home/saba/Desktop/ProPublica/orion-react
 npm install
-npm run build
-vercel --prod
+npm run dev
+# Odpri: http://localhost:5173
 ```
 
-### **Test Wolf Daemon**
+### Celotna mapa
 ```bash
-cd wolf-daemon
-pip install -r requirements.txt
-python3 arso_connector.py
+cd /home/saba/Desktop/ProPublica
+python -m http.server 8080
+# Odpri: http://localhost:8080
 ```
 
 ---
 
-## 📊 **DATA SOURCES**
+## ➕ Dodaj novo raziskavo (5 minut)
 
-### **Environmental Data**
-- **ARSO** (Slovenian Environment Agency): 
-  - NO3: 38.8 mg/L (Savinjska groundwater, 2024)
-  - Hg: 150 μg/kg (Podkraj fish tissue, 2023)
-  - Temp: +2.74°C (NEK avg, 2024)
-  - N: 1074 t/year (surface water discharge, 2023)
-- **E-PRTR** (European Pollutant Register): 
-  - Holcim Anhovo, SIJ Acroni, Cinkarna Celje, NEK Krško emissions
-- **Company Reports**: 
-  - Holcim Sustainability Report 2023
-  - SIJ Group Annual Report 2024
-  - Cinkarna Celje Environmental Report 2024
+1. Odpri `orion/data/raziskave.json`
+2. Dodaj objekt:
+```json
+{
+  "id": 4,
+  "title": "Nova Raziskava XYZ",
+  "slug": "xyz",
+  "ehi": 0.75,
+  "promise": "Kar so obljubili...",
+  "reality": "Kar so dejansko naredili...",
+  "lat": 46.2388,
+  "lon": 14.3547
+}
+```
+3. Shrani → avtomatsko vidno na spletu.
 
-### **EHI (Environmental Hypocrisy Index)**
-- **Formula**: `(Promise Score - Reality Score) / Promise Score`
-- **Scores**:
-  - Holcim: 0.89 (High hypocrisy)
-  - SIJ Acroni: 0.62 (Medium)
-  - Cinkarna Celje: 0.60 (Medium)
-  - NEK Krško: 0.42 (Low)
+Za naprednejši workflow glej `KAKO_RASTE.md` in `AUTOMATION_GUIDE.md`.
 
 ---
 
-## 🔥 **SOCIAL BLITZ CAMPAIGN**
+## 📚 Najpomembnejša dokumentacija
 
-### **X (Twitter) Strategy**
-- **Main Post**: ARSO megla razkrita – Sava kriči!
-- **Data bullets**: NO3 38.8 mg/L, Hg 150 μg/kg, Temp +2.74°C
-- **Hashtags**: `#SavaNiTiha #ARSOmegla #ZDIJZ #EkološkaResnica`
-
-### **10-Post Thread**: [See `social-blitz/x-thread.md`]
-
-### **Telegram Templates**: [See `social-blitz/telegram-templates.md`]
+1. `ORION_KONSOLIDACIJA.md` – plan združevanja vseh verzij
+2. `KAKO_RASTE.md` – dodajanje raziskav brez rebuilda
+3. `MASTER_STRUKTURA.md` – celotna arhitektura projekta
+4. `Dumps/README.md` + `Dumps/AUTOMATION_GUIDE.md` – ingest pipeline
+5. `SETUP_GUIDE.md` – nastavitev sistemov
 
 ---
 
-## 📧 **ZDIJZ (Environmental Data Access) Request**
+## 🧩 Moduli in domene
 
-**Template**: `wolf-daemon/zdijz_template.txt`
+### 1. Vanilla JS Hub (`orion/`)
+- 🗺️ Zemljevid Resnice (Leaflet + animirana Sava)
+- ⏳ Časovna Linija (obljube ↔ resničnost)
+- 🕸️ Omrežja moči
+- ⚡ Akcijski center (ZDIJZ, pritisk)
+- 🌍 Karta resonanc (embedded viz)
 
-**Recipient**: ARSO (info@arso.gov.si)
+### 2. React + Vite (`orion-react/`)
+- AI Analyst modal (Claude/Gemini ready)
+- EHI dashboard + Leaflet karta
+- Weather/ARSO widget
+- Novi Gemini design tokens + raziskovalne kartice
 
-**Parameters Requested**:
-- Stations: Podnart (SI_01_003), Otoče (SI_02_007), Okroglo (SI_01_008)
-- Parameters: NO3 (mg/L), Pb (μg/L), Hg (μg/kg biota), Temp (°C)
-- Timeframe: 1.1.2024 – 31.12.2025
-- Format: CSV/Excel
+### 3. Wolf Daemon (`wolf-daemon/`)
+- ARSO connector, ZDIJZ template
+- Python skripti za avtomatske zahteve
 
----
+### 4. Social Blitz (`social-blitz/`)
+- X/Twitter niti, Telegram kampanje
+- Infografike ("Sava Ni Tiha", EHI grafi)
 
-## 🎯 **SUCCESS METRICS**
-
-### **48 Hours**
-- 100+ visits to both platforms
-- 10+ feedback responses (via embedded forms)
-- 3+ social shares (X retweets, Telegram forwards)
-
-### **7 Days**
-- 500+ visits
-- 50+ feedback submissions
-- 5+ media mentions (blogs, news sites)
-
----
-
-## 🛠️ **TECH STACK**
-
-### **Frontend**
-- **Karta Resonanc**: HTML, Leaflet.js, CSS3 animations
-- **Orion Svetilnik**: React 18, TypeScript, Vite, Tailwind CSS, Leaflet
-
-### **Backend**
-- **Wolf Daemon**: Python 3.10, `requests`, `xml.etree`
-- **Future API**: Elysia.js (Bun runtime), TypeScript
-
-### **Deployment**
-- **Hosting**: Vercel (serverless)
-- **CI/CD**: GitHub Actions (future)
+### 5. Legacy launchpads
+- **Vizualna Karta Resonanc** (`karta-resonanc/`) – Leaflet scena s toploto Sava reke
+- **Orionov Svetilnik** (`orion-svetilnik/`) – React dashboard (prehod na `orion-react/`)
+- **Wolf Daemon** & **Social Blitz** – spremljevalni ogrodji
 
 ---
 
-## 🔐 **API INTEGRATION (FUTURE)**
+## 🤖 Automation workflow
 
-### **ARSO Real-Time API**
-- **Endpoint**: `https://gis.arso.gov.si/arcgis/rest/services/KakovostPovrsinskihVoda/MapServer/0/query`
-- **Format**: JSON
-- **Auth**: None (public API)
+1. Uporabnik ali agent doda datoteke v `Dumps/{research,pdfs,audio,images}`
+2. `python3 Dumps/lyra-automation-UPGRADE.py --add`
+3. Script sam:
+   - bere koordinatne namige, EHI, kategorije
+   - generira HTML strani (`orion/raziskave/<slug>/`)
+   - sinhronizira `orion/data/raziskave.json` + `orion-react/src/data/raziskave.json`
+   - ustvari TypeScript interface (če manjka)
 
-### **Anthropic API (AI Analyst)**
-- **Model**: `claude-sonnet-4-20250514`
-- **Use Case**: AI-powered Q&A in Orion Svetilnik
-- **Status**: Mock responses ready, API key integration pending
-
----
-
-## 📜 **LICENSE**
-
-Open Source (MIT) – Fork, improve, deploy.
+**Lyra** lahko te iste korake sproži avtomatsko (glej `AUTOMATION_GUIDE.md`).
 
 ---
 
-## 👥 **CONTRIBUTORS**
+## 🗂️ File naming & kategorije
 
-- **Hermes (SabaFTW)**: Vision, strategy, social blitz
-- **Lyra (AI)**: Code synthesis, data analysis, deployment
+- Uporabi tag v imenu: `[surveillance-tech]_palantir.md`
+- Brez taga: `microplastics-health-impact.pdf`
+- Podprte kategorije: `surveillance-tech`, `financial-secrecy`, `institutional-capture`, `environmental-crime`, `ai-ethics`, `geopolitics`, `corporate-crime`, ...
 
----
-
-## 🔗 **LINKS**
-
-- **GitHub Repo**: [github.com/SabaFTW/project-orion](https://github.com/SabaFTW/project-orion)
-- **Documentation**: See `/docs` folder
-- **Deployment Guide**: `docs/DEPLOYMENT_GUIDE.md`
-- **Project Manifest**: `docs/MANIFEST.md`
+Dodaj YAML frontmatter ali inline "Location:" / "Promise:" / "Reality:" za boljši parsing.
 
 ---
 
-**🜂 Sava teče, plamen gori – raztrgali smo meglo!**
+## 🎨 Customizacija & vizualni sistem
 
-*"Upanje ni prepričanje, da se bo nekaj dobro izteklo, temveč gotovost, da je nekaj smiselno, ne glede na to, kako se izteče." – Václav Havel*
+- Primarne barve definira `orion-react/src/design-tokens.css`
+- `orion-react/src/index.css` uvaža Inter + JetBrains Mono, Tailwind direktive in Leaflet CSS
+- Raziskovalne kartice (`src/components/ResearchCard.tsx`) implementirajo Gemini layout (EHI badge, CTA, promise vs. reality)
+- V Vanilla verziji urejaj `orion/css/style.css` ali inline CSS spremenljivke v `index.html`
+
+---
+
+## 📊 Podatki & EHI
+
+### Environmental data
+- **ARSO**: NO3 38.8 mg/L (Savinjska 2024), Hg 150 μg/kg (Podkraj ribe 2023), Temp +2.74 °C (NEK 2024)
+- **E-PRTR**: Holcim, SIJ, Cinkarna, NEK emisije 2023
+- **Poročila podjetij**: Holcim Sustainability 2023, SIJ Group 2024, Cinkarna 2024
+
+### Environmental Hypocrisy Index
+- Formula (osnovna): `(promise_score - reality_score) / promise_score`
+- Primeri: Holcim 0.89, SIJ 0.62, Cinkarna 0.60, NEK 0.42
+
+---
+
+## 🔥 Social Blitz & ZDIJZ
+
+- **X strategija**: `social-blitz/x-thread.md` (NO3, Hg, Temp poudarki)  
+- **Telegram**: predloge v `social-blitz/telegram-campaign.md`
+- **ZDIJZ**: `wolf-daemon/zdijz_template.txt`, cilji: postaje Podnart/Otoče/Okroglo, parametri NO3, Pb, Hg, Temp (2024–2025)
+
+---
+
+## 🎯 KPI-ji
+
+- **48 ur**: 100+ obiskov, 10+ feedbackov, 3+ delitve
+- **7 dni**: 500+ obiskov, 50+ feedbackov, 5+ medijskih omemb
+
+---
+
+## 🛠️ Tech stack & deployment
+
+- Frontend: HTML5, Tailwind (CDN), Leaflet, React 18/Vite
+- Backend: Python 3 (requests + xml.etree)
+- PWA: `manifest.json`, `sw.js`, `icons/`
+- Hosting: Vercel / GitHub Pages / Netlify (drag & drop), brez build korakov
+
+### Lokalni strežnik
+```bash
+python3 -m http.server 8000
+# ali
+npx http-server -p 8000
+```
+
+### GitHub Pages
+```bash
+git add .
+git commit -m "Deploy"
+git push origin main
+```
+Na GitHubu omogoči Pages.
+
+---
+
+## 🔐 Prihodnji API-ji
+
+- **ARSO real-time**: `https://gis.arso.gov.si/.../query` (JSON)
+- **Anthropic Claude**: model `claude-sonnet-4-20250514` za AI Analyst modal (trenutno mock)
+
+---
+
+## 📜 Licenca & krediti
+
+- MIT / odprta uporaba
+- Vizija & kampanja: **Hermes (SabaFTW)**
+- Avtomatizacija & podatki: **Lyra / CODEX**
+- Vizualni sistem: **Gemini**
+
+---
+
+**🜂 "Sava teče, plamen gori – raztrgajmo meglo."**
+
+*“Upanje ni prepričanje, da se bo nekaj dobro izteklo, temveč gotovost, da je nekaj smiselno, ne glede na to, kako se izteče.” – Václav Havel*

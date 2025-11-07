@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProPublica Research Archive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .folder-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .folder-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="glass rounded-2xl p-8 mb-8 text-white">
+            <h1 class="text-5xl font-black mb-4">📁 ProPublica Research Archive</h1>
+            <p class="text-xl opacity-90">Organized investigative research and analysis</p>
+        </div>
+
+        <!-- Folder Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Audio Folder -->
+            <div class="folder-card glass rounded-2xl p-6 text-white" onclick="window.location.href='audio/'">
+                <div class="text-6xl mb-4">🎧</div>
+                <h2 class="text-2xl font-bold mb-2">Audio Briefings</h2>
+                <p class="opacity-80 mb-4">Research podcasts and audio analysis</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm opacity-60" id="audio-count">Loading...</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- PDFs Folder -->
+            <div class="folder-card glass rounded-2xl p-6 text-white" onclick="window.location.href='pdfs/'">
+                <div class="text-6xl mb-4">📄</div>
+                <h2 class="text-2xl font-bold mb-2">PDF Reports</h2>
+                <p class="opacity-80 mb-4">Detailed research documents</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm opacity-60" id="pdf-count">Loading...</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Images Folder -->
+            <div class="folder-card glass rounded-2xl p-6 text-white" onclick="window.location.href='images/'">
+                <div class="text-6xl mb-4">🖼️</div>
+                <h2 class="text-2xl font-bold mb-2">Images & Charts</h2>
+                <p class="opacity-80 mb-4">Visual data and diagrams</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm opacity-60" id="image-count">Loading...</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- HTML Projects -->
+            <div class="folder-card glass rounded-2xl p-6 text-white" onclick="window.location.href='html/'">
+                <div class="text-6xl mb-4">🌐</div>
+                <h2 class="text-2xl font-bold mb-2">Interactive Projects</h2>
+                <p class="opacity-80 mb-4">HTML visualizations and apps</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm opacity-60" id="html-count">Loading...</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Data Files -->
+            <div class="folder-card glass rounded-2xl p-6 text-white" onclick="window.location.href='data/'">
+                <div class="text-6xl mb-4">📊</div>
+                <h2 class="text-2xl font-bold mb-2">Data & Metadata</h2>
+                <p class="opacity-80 mb-4">JSON, markdown, and raw data</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm opacity-60" id="data-count">Loading...</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- All Files -->
+            <div class="folder-card glass rounded-2xl p-6 text-white" onclick="showAllFiles()">
+                <div class="text-6xl mb-4">📋</div>
+                <h2 class="text-2xl font-bold mb-2">All Files</h2>
+                <p class="opacity-80 mb-4">Complete file listing</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm opacity-60" id="total-count">Loading...</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Files -->
+        <div class="glass rounded-2xl p-8 mt-8 text-white">
+            <h2 class="text-3xl font-bold mb-6">📌 Recent Research</h2>
+            <div id="recent-files" class="space-y-3">
+                <p class="opacity-60">Loading recent files...</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="glass rounded-2xl p-6 mt-8 text-white text-center">
+            <p class="opacity-80">ProPublica Research Archive • Organized and Ready</p>
+            <p class="text-sm opacity-60 mt-2">All your research in one clean place 💚</p>
+        </div>
+    </div>
+
+    <!-- File List Modal -->
+    <div id="file-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50" onclick="hideModal()">
+        <div class="glass rounded-2xl p-8 max-w-4xl w-full max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-white">All Files</h2>
+                <button onclick="hideModal()" class="text-white hover:opacity-70">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="all-files-list" class="text-white">
+                <p class="opacity-60">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Count files in each folder
+        async function countFiles() {
+            const folders = [
+                { id: 'audio', path: 'audio/', label: 'files' },
+                { id: 'pdf', path: 'pdfs/', label: 'files' },
+                { id: 'image', path: 'images/', label: 'files' },
+                { id: 'html', path: 'html/', label: 'projects' },
+                { id: 'data', path: 'data/', label: 'files' }
+            ];
+
+            let total = 0;
+
+            for (const folder of folders) {
+                try {
+                    const response = await fetch(folder.path);
+                    const text = await response.text();
+                    // Count file links (rough estimate)
+                    const fileCount = (text.match(/href="[^"]+\.(mp3|pdf|jpg|png|html|json|md|txt)/gi) || []).length;
+                    document.getElementById(`${folder.id}-count`).textContent = `${fileCount} ${folder.label}`;
+                    total += fileCount;
+                } catch (e) {
+                    document.getElementById(`${folder.id}-count`).textContent = 'Browse →';
+                }
+            }
+
+            document.getElementById('total-count').textContent = `${total} total files`;
+        }
+
+        // Load recent files
+        async function loadRecentFiles() {
+            const folders = ['audio', 'pdfs', 'html'];
+            const recentFiles = [];
+
+            for (const folder of folders) {
+                try {
+                    const response = await fetch(`${folder}/`);
+                    const text = await response.text();
+                    const matches = text.matchAll(/href="([^"]+\.(mp3|pdf|html))"/gi);
+                    for (const match of matches) {
+                        recentFiles.push({
+                            name: decodeURIComponent(match[1]),
+                            folder: folder,
+                            path: `${folder}/${match[1]}`
+                        });
+                    }
+                } catch (e) {
+                    // Folder might be empty
+                }
+            }
+
+            const recentContainer = document.getElementById('recent-files');
+            if (recentFiles.length > 0) {
+                recentContainer.innerHTML = recentFiles.slice(0, 5).map(file => {
+                    const icon = file.name.endsWith('.mp3') ? '🎧' :
+                                 file.name.endsWith('.pdf') ? '📄' : '🌐';
+                    return `
+                        <a href="${file.path}" class="block p-4 rounded-lg hover:bg-white hover:bg-opacity-10 transition">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">${icon}</span>
+                                <div class="flex-1">
+                                    <p class="font-semibold">${file.name}</p>
+                                    <p class="text-sm opacity-60">${file.folder}</p>
+                                </div>
+                                <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            } else {
+                recentContainer.innerHTML = '<p class="opacity-60">No recent files found. Add some research to get started!</p>';
+            }
+        }
+
+        function showAllFiles() {
+            document.getElementById('file-modal').classList.remove('hidden');
+            loadAllFiles();
+        }
+
+        function hideModal() {
+            document.getElementById('file-modal').classList.add('hidden');
+        }
+
+        async function loadAllFiles() {
+            const folders = {
+                'audio': '🎧 Audio',
+                'pdfs': '📄 PDFs',
+                'images': '🖼️ Images',
+                'html': '🌐 HTML',
+                'data': '📊 Data'
+            };
+
+            let html = '';
+
+            for (const [folder, icon] of Object.entries(folders)) {
+                try {
+                    const response = await fetch(`${folder}/`);
+                    const text = await response.text();
+                    const matches = text.matchAll(/href="([^"]+)"/gi);
+                    const files = [];
+
+                    for (const match of matches) {
+                        const filename = match[1];
+                        if (!filename.startsWith('.') && !filename.startsWith('/') && filename !== '../') {
+                            files.push(filename);
+                        }
+                    }
+
+                    if (files.length > 0) {
+                        html += `
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-3 flex items-center gap-2">
+                                    ${icon}
+                                </h3>
+                                <div class="space-y-2">
+                                    ${files.map(file => `
+                                        <a href="${folder}/${file}" class="block p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition">
+                                            ${decodeURIComponent(file)}
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (e) {
+                    // Folder might be empty or inaccessible
+                }
+            }
+
+            document.getElementById('all-files-list').innerHTML = html || '<p class="opacity-60">No files found</p>';
+        }
+
+        // Initialize
+        countFiles();
+        loadRecentFiles();
+
+        // Keyboard shortcut: Escape to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                hideModal();
+            }
+        });
+    </script>
+</body>
+</html>

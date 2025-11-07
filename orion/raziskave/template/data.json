@@ -1,0 +1,28 @@
+{
+  "id": 0,
+  "title": "[NASLOV RAZISKAVE]",
+  "slug": "[url-friendly-slug]",
+  "category": "[Kategorija - npr. Energetika, Industrija, Komunala]",
+  "location": "[Lokacija]",
+  "ehi": 0.00,
+  "promise": "[Javna obljuba - kratek opis]",
+  "reality": "[Dejanska resnica - kratek opis]",
+  "description": "[Daljši opis raziskave - 2-3 stavki]",
+  "date": "YYYY-MM-DD",
+  "featured": false,
+  "tags": ["tag1", "tag2", "tag3"],
+  "lat": 0.0000,
+  "lon": 0.0000,
+  "emissions": {
+    "co2": 0,
+    "nox": 0,
+    "sox": 0
+  },
+  "sources": [
+    "Vir 1",
+    "Vir 2",
+    "Vir 3"
+  ],
+  "author": "[Tvoje ime ali Projekt Orion]",
+  "lastUpdated": "YYYY-MM-DD"
+}

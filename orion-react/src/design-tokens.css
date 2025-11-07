@@ -1,0 +1,188 @@
+/* 🎨 Projekt Orion - Design Tokens (Gemini Visual System v1.0) */
+
+:root {
+  /* Colors - Gemini Palette */
+  --primary: #0FCCCE;      /* cyan-teal - trust, data, clarity */
+  --secondary: #FF6B6B;    /* coral-red - warnings, critical */
+  --background: #0A0E27;   /* deep navy - professional, focused */
+  --surface: #151B3B;      /* lighter navy - cards stand out */
+  --text-primary: #E8EAED; /* off-white - readable */
+  --text-secondary: #9CA3AF; /* gray - metadata, captions */
+
+  /* EHI Color Coding */
+  --ehi-low: #22C55E;      /* green - 0.0-0.3 */
+  --ehi-medium: #FACC15;   /* yellow - 0.3-0.6 */
+  --ehi-high: #F97316;     /* orange - 0.6-0.8 */
+  --ehi-critical: #EF4444; /* red - 0.8-1.0 */
+
+  /* Typography - Inter */
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Font Sizes */
+  --text-h1: 3.5rem;   /* 56px - hero */
+  --text-h2: 2.25rem;  /* 36px - sections */
+  --text-h3: 1.5rem;   /* 24px - subsections */
+  --text-body: 1rem;   /* 16px - default */
+  --text-small: 0.875rem; /* 14px - metadata */
+  --text-tiny: 0.75rem;   /* 12px - timestamps */
+
+  /* Line Heights */
+  --line-height-heading: 1.2;
+  --line-height-body: 1.6;
+
+  /* Spacing */
+  --spacing-card: 24px;
+  --spacing-card-mobile: 16px;
+  --spacing-gap: 32px;
+  --spacing-gap-tablet: 24px;
+  --spacing-gap-mobile: 16px;
+
+  /* Border Radius */
+  --radius-card: 12px;
+  --radius-badge: 999px;
+
+  /* Breakpoints (for JS) */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+}
+
+/* Dark mode base */
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--line-height-body);
+}
+
+/* Typography */
+h1 {
+  font-size: var(--text-h1);
+  font-weight: 700;
+  line-height: var(--line-height-heading);
+  color: var(--text-primary);
+}
+
+h2 {
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: var(--line-height-heading);
+  color: var(--text-primary);
+}
+
+h3 {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: var(--line-height-heading);
+  color: var(--text-primary);
+}
+
+/* Links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: color-mix(in srgb, var(--primary) 80%, white);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--background);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--primary) 90%, white);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 204, 206, 0.3);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(15, 204, 206, 0.1);
+}
+
+/* Cards */
+.card {
+  background-color: var(--surface);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-card);
+  transition: all 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3),
+              0 0 0 1px var(--primary);
+}
+
+/* EHI Badges */
+.ehi-badge {
+  padding: 6px 12px;
+  border-radius: var(--radius-badge);
+  font-weight: 600;
+  font-size: var(--text-small);
+}
+
+.ehi-low {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: var(--ehi-low);
+}
+
+.ehi-medium {
+  background-color: rgba(250, 204, 21, 0.15);
+  color: var(--ehi-medium);
+}
+
+.ehi-high {
+  background-color: rgba(249, 115, 22, 0.15);
+  color: var(--ehi-high);
+}
+
+.ehi-critical {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--ehi-critical);
+}
+
+/* Category Badges */
+.category-badge {
+  background-color: var(--surface);
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  border-radius: var(--radius-badge);
+  font-size: var(--text-small);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :root {
+    --text-h1: 2.5rem;   /* 40px mobile */
+    --text-h2: 1.875rem; /* 30px mobile */
+    --text-h3: 1.25rem;  /* 20px mobile */
+  }
+
+  .card {
+    padding: var(--spacing-card-mobile);
+  }
+}

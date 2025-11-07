@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="sl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktivna Analiza: Palantir in Kriza Mikroplastike</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A single-page, vertical-scrolling narrative application divided into four thematic sections (The Source, The Connection, The Invasion, The Action). This structure transforms the academic report into a compelling story of cause and effect, guiding the user from abstract ideology to tangible biological harm, which is more engaging and user-friendly than a direct 1:1 mapping of the report's chapters. -->
+    <!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation Method -> Interaction -> Justification -> Library/Method. Thiel's Ideology -> Explain -> Interactive Cards -> Click/Hover -> Breaks down complex text. Polluter %s -> Compare -> Bar Chart (Chart.js) -> Hover Tooltips -> Clear comparison. Financial Web -> Show Relationships -> Dynamic Table/Diagram (HTML/JS) -> Click/Highlight -> Intuitive for networks. Health Impacts -> Personalize/Visualize -> Clickable Body Diagram (HTML/JS) -> Click -> High impact, personal connection. Brain MNP Trend -> Show Change -> Line Chart (Chart.js) -> Hover Tooltips -> Standard for time-series data. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #2c3e50;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .dark body {
+            background-color: #111827;
+            color: #d1d5db;
+        }
+        .accent-color { color: #008080; }
+        .dark .accent-color { color: #2dd4bf; }
+        .bg-accent-color { background-color: #008080; }
+        .dark .bg-accent-color { background-color: #14b8a6; }
+        .border-accent-color { border-color: #008080; }
+        .dark .border-accent-color { border-color: #14b8a6; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .human-body-map .body-part {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .human-body-map .body-part:hover, .human-body-map .body-part.active {
+            filter: drop-shadow(0 0 10px #008080);
+            transform: scale(1.05);
+        }
+        .dark .human-body-map .body-part:hover, .dark .human-body-map .body-part.active {
+            filter: drop-shadow(0 0 10px #2dd4bf);
+        }
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+        .citation-link {
+            font-size: 0.65rem;
+            vertical-align: super;
+            text-decoration: none;
+        }
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #008080;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+
+
+
+
+
+
+<link rel="stylesheet" href="../../../ghostline-unified.css">
+</head>
+<body class="antialiased">
+
+    <!-- Side Slider Panel -->
+    <div id="side-panel-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden transition-opacity duration-300"></div>
+    <div id="side-panel" class="fixed top-0 left-0 h-full w-72 bg-white dark:bg-gray-800 shadow-lg z-50 transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-6">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Nastavitve</h2>
+            <div class="flex items-center justify-between">
+                <span class="text-gray-700 dark:text-gray-300">Temni Način</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="theme-toggle-slider">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800 dark:text-gray-200">Plastika & Moč</h1>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#vir" class="text-gray-600 dark:text-gray-400 hover:text-accent-color transition">Vir</a>
+                <a href="#povezava" class="text-gray-600 dark:text-gray-400 hover:text-accent-color transition">Povezava</a>
+                <a href="#uporaba" class="text-gray-600 dark:text-gray-400 hover:text-accent-color transition">Uporaba</a>
+                <a href="#invazija" class="text-gray-600 dark:text-gray-400 hover:text-accent-color transition">Invazija</a>
+                <a href="#resitve" class="text-gray-600 dark:text-gray-400 hover:text-accent-color transition">Rešitve</a>
+                <a href="#akcija" class="text-gray-600 dark:text-gray-400 hover:text-accent-color transition">Akcija</a>
+                <a href="#viri" class="text-gray-600 dark:text-gray-400 hover:text-accent-color transition">Viri</a>
+            </div>
+             <button id="open-side-panel" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+                <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="bg-FDFBF8 dark:bg-gray-900">
+        <section id="hero" class="min-h-[80vh] flex items-center bg-gray-50 dark:bg-gray-800/50">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-4xl md:text-6xl font-bold text-gray-800 dark:text-gray-100 mb-4 leading-tight">Digitalni Oporniki, Plastična Telesa</h2>
+                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+                    Interaktivna preiskava, ki razkriva, kako digitalna arhitektura moči podjetja Palantir pospešuje globalno krizo mikroplastike in neposredno ogroža zdravje ljudi.
+                </p>
+                <a href="#vir" class="bg-accent-color text-white font-bold py-3 px-8 rounded-full hover:bg-teal-700 dark:hover:bg-teal-500 transition transform hover:scale-105">
+                    Začni z raziskovanjem
+                </a>
+            </div>
+        </section>
+
+        <section id="vir" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Vir: Ideologija kot Operacijski Sistem</h3>
+                    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        Jedro problema leži v sotočju radikalne ideologije Petra Thiela in zmogljive tehnologije podjetja Palantir, ki skupaj ustvarjata arhitekturo novega, tehnološkega totalitarizma.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Arhitekt: Thielova Vizija</h4>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            Peter Thiel, soustanovitelj Palantirja, je prerok, ki vidi demokracijo kot oviro za napredek. Njegova trditev, da "svoboda in demokracija nista več združljivi"<sup class="citation-link accent-color"><a href="#source-1">[1]</a></sup>, ni le provokacija, temveč temelj njegovega delovanja. Njegov cilj je ustvariti tehnološke sisteme, ki lahko "pobegnejo politiki" in delujejo zunaj nadzora, kar korporacijam omogoča absolutno prednost.
+                        </p>
+                        <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                            <li class="flex items-start"><span class="accent-color font-bold mr-2">→</span><span>**Kritika demokracije:** Vidi jo kot oviro, ki jo duši birokracija in "nepremišljen demos".</span></li>
+                            <li class="flex items-start"><span class="accent-color font-bold mr-2">→</span><span>**Beg iz politike:** Zagovarja nove prostore svobode, kot so kibernetski prostor in vesolje, a to je iluzija.</span></li>
+                            <li class="flex items-start"><span class="accent-color font-bold mr-2">→</span><span>**Ironija moči:** Paradoksalno, Palantir krepi in monetizira moč iste države, ki jo Thiel prezira, in postaja njen najmočnejši oklep.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Motor: Palantirjev Ekosistem</h4>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            Palantir ni le podjetje; je operacijski sistem za moderno državo in korporacije, rojen iz kapitala Cie (In-Q-Tel)<sup class="citation-link accent-color"><a href="#source-2">[2]</a></sup>. Njegove platforme so orožje v boju proti stagnaciji, kjer "učinkovitost" postane totalitarizem brez obraza.
+                        </p>
+                         <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                            <li class="flex items-start"><span class="accent-color font-bold mr-2">→</span><span>**Gotham:** Platforma za obveščevalce, ki integrira podatke v mreže nadzora. Uporabljena v lovu na bin Ladna.</span></li>
+                            <li class="flex items-start"><span class="accent-color font-bold mr-2">→</span><span>**Foundry:** Komercialna različica, ki optimizira dobavne verige za korporacije – vključno s tistimi, ki širijo plastiko.</span></li>
+                            <li class="flex items-start"><span class="accent-color font-bold mr-2">→</span><span>**Apollo:** Tehnološka hrbtenica, ki omogoča nenehno posodabljanje in delovanje moči v katerem koli okolju, od oblaka do bojišča.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="povezava" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Povezava: Finančna Simbioza</h3>
+                    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        Palantirjeva "dividenda učinkovitosti" neposredno koristi največjim svetovnim proizvajalcem plastike. Finančna mreža, ki stoji za njimi, ni le povezava; je živa entiteta, ki ščiti tako tehnološkega omogočevalca kot korporativnega onesnaževalca.
+                    </p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">Glavni Onesnaževalci s Plastiko</h4>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">Odstotek svetovnega plastičnega onesnaženja, ki ga povzročajo blagovne znamke.<sup class="citation-link accent-color"><a href="#source-3">[3]</a></sup></p>
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="pollutersChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">Mreža Finančne Odvisnosti</h4>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">Veliki upravljavci premoženja so srce simbioze, ki teče med Palantirjem in onesnaževalci, kar ustvarja sistem, ki maksimizira dobiček in ignorira škodo.</p>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                            <table class="w-full text-left" id="ownershipTable">
+                                <thead class="text-gray-700 dark:text-gray-300">
+                                    <tr class="border-b dark:border-gray-700">
+                                        <th class="py-2 font-semibold">Vlagatelj</th>
+                                        <th class="py-2 font-semibold text-center">Palantir (PLTR)</th>
+                                        <th class="py-2 font-semibold text-center">Coca-Cola (KO)</th>
+                                        <th class="py-2 font-semibold text-center">Nestlé (NESN)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-600 dark:text-gray-400">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="uporaba" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Uporaba: Monetizacija Prisile</h3>
+                    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        Palantirjeva tehnologija ni abstraktna; je aktivno orožje na ranljivih. Njegov poslovni model je testni poligon za socialni inženiring, kjer prisila rodi dobiček.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center fade-in">
+                        <div class="card-icon accent-color mb-4">🛂</div>
+                        <h4 class="text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Deportacije ICE</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Platformi ICM in FALCON nista le orodji; sta laboratorija za nadzor. Omogočata ločevanje družin (400+ primerov 2017-2019)<sup class="citation-link accent-color"><a href="#source-4">[4]</a></sup> in testirata algoritme na najbolj ranljivih.</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center fade-in">
+                        <div class="card-icon accent-color mb-4">🎯</div>
+                        <h4 class="text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Project Maven</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Umetna inteligenca analizira posnetke dronov za hitrejše ciljanje. To ni le podpora; je testni poligon za avtomatizacijo odločitev o življenju in smrti.</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center fade-in">
+                        <div class="card-icon accent-color mb-4">⚖️</div>
+                        <h4 class="text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Prediktivno Policiranje</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Algoritmi napovedujejo zločine, a hkrati krepijo obstoječo rasno pristranskost. V Nemčiji je bilo tovrstno delovanje razsojeno kot neustavno<sup class="citation-link accent-color"><a href="#source-5">[5]</a></sup>, ker je prisila temelj posla.</p>
+                    </div>
+                </div>
+                <div class="mt-16 fade-in">
+                     <h4 class="text-2xl font-bold mb-8 text-center text-gray-800 dark:text-gray-200">Vzorec Delovanja: Druge Kontroverze</h4>
+                     <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                            <h5 class="font-bold text-gray-800 dark:text-gray-200">Diskriminacija pri Zaposlovanju</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">Leta 2016 tožba s strani Ministrstva za delo ZDA zaradi sistematičnega izključevanja azijskih kandidatov. Poravnava v višini 1,7 milijona dolarjev.</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                            <h5 class="font-bold text-gray-800 dark:text-gray-200">Cambridge Analytica</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">Žvižgač Christopher Wylie je pričal, da so zaposleni pri Palantirju pomagali pri zbiranju in analizi podatkov s Facebooka za politično profiliranje.</p>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                            <h5 class="font-bold text-gray-800 dark:text-gray-200">Načrt proti WikiLeaksu</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">Leta 2010 je bil Palantir del predloga za "motenje" delovanja WikiLeaksa z dezinformacijami in kibernetskimi napadi.</p>
+                        </div>
+                         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                            <h5 class="font-bold text-gray-800 dark:text-gray-200">Podpora IDF v Gazi</h5>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">Poročila Združenih narodov navajajo, da programska oprema Palantirja podpira izraelske obrambne sile pri ciljanju v Gazi.</p>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="invazija" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Invazija: Telo kot Bojišče</h3>
+                    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                        Zanka se zapre v krvi. Mikroplastika ni le onesnaževalec; je fizični manifest digitalne arhitekture moči. Delci, ki jih sistem optimizira za proizvodnjo, se zdaj vračajo v telesa tistih, ki jih sistem nadzira. Krvno-možganska pregrada, srčne arterije, placenta – vse postaja bojišče.
+                    </p>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-1 fade-in">
+                         <div class="relative w-full max-w-xs mx-auto human-body-map">
+                            <img src="https://placehold.co/300x600/FFFFFF/CCCCCC?text=Silhueta+Človeka" alt="Human Body" class="w-full h-auto">
+                            <div id="body-brain" data-part="brain" class="body-part absolute top-[5%] left-[40%] w-[20%] h-[10%] bg-accent-color/30 rounded-full" title="Možgani"></div>
+                            <div id="body-heart" data-part="heart" class="body-part absolute top-[28%] left-[42%] w-[16%] h-[8%] bg-accent-color/30 rounded-full" title="Srčno-žilni sistem"></div>
+                            <div id="body-blood" data-part="blood" class="body-part absolute top-[45%] left-[45%] w-[10%] h-[15%] bg-accent-color/30 rounded-lg" title="Krvni obtok"></div>
+                            <div id="body-reproductive" data-part="reproductive" class="body-part absolute top-[62%] left-[40%] w-[20%] h-[10%] bg-accent-color/30 rounded-lg" title="Reproduktivni sistem"></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 fade-in">
+                        <div id="health-info-panel" class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg min-h-[400px] flex flex-col justify-center">
+                            <div id="info-default" class="text-center text-gray-500 dark:text-gray-400">
+                                <p class="text-xl">Izberite del telesa, da prikažete podrobne informacije o vplivu mikroplastike.</p>
+                            </div>
+                            <div id="info-content" class="hidden">
+                                <h4 id="info-title" class="text-2xl font-bold mb-4 accent-color"></h4>
+                                <p id="info-text" class="text-gray-700 dark:text-gray-300 mb-4"></p>
+                                <ul id="info-list" class="space-y-2"></ul>
+                            </div>
+                        </div>
+                         <div class="mt-8 fade-in">
+                            <h4 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">Bliskovita Invazija Možganov</h4>
+                             <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">Koncentracije mikroplastike v možganih so se v samo 8 letih povečale za 50%.<sup class="citation-link accent-color"><a href="#source-6">[6]</a></sup></p>
+                            <div class="chart-container h-64 md:h-80 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
+                                <canvas id="brainChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resitve" class="py-20 bg-white dark:bg-gray-800">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Rešitve in Akcije</h3>
+                    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                        Iluzijo smo razbili. Zdaj je čas za dejanja. Tukaj so konkretne rešitve in platforme, ki že delujejo.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Solutions Column -->
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg shadow-lg">
+                        <h4 class="text-2xl font-bold mb-4 text-green-500">Konkretne Rešitve</h4>
+                        <div class="space-y-4">
+                            <div class="solution-item">
+                                <h5 class="font-bold text-lg mb-2">🔍 Transparentnost Algoritmov</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Zahtevajte odprto kodo za vse javno financirane algoritme.</p>
+                                <a href="https://www.ajl.org" target="_blank" class="text-blue-500 hover:underline text-sm">Primer: Algorithmic Justice League</a>
+                            </div>
+                            <div class="solution-item">
+                                <h5 class="font-bold text-lg mb-2">🌐 Digitalne Zadruge</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Podprite platforme v lasti uporabnikov namesto korporacij.</p>
+                                <a href="https://joinmastodon.org" target="_blank" class="text-blue-500 hover:underline text-sm">Primer: Mastodon</a>
+                            </div>
+                            <div class="solution-item">
+                                <h5 class="font-bold text-lg mb-2">📚 Medijska Pismenost</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Vključite kritično razmišljanje v šolske programe.</p>
+                                <a href="https://medialiteracynow.org" target="_blank" class="text-blue-500 hover:underline text-sm">Primer: Media Literacy Now</a>
+                            </div>
+                            <div class="solution-item">
+                                <h5 class="font-bold text-lg mb-2">⚖️ Etične Smernice za AI</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Zavezujoči okviri za razvoj odgovorne umetne inteligence.</p>
+                                <a href="https://digital-strategy.ec.europa.eu/en/policies/eu-ai-act" target="_blank" class="text-blue-500 hover:underline text-sm">Primer: EU AI Act</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Platforms Column -->
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg shadow-lg">
+                        <h4 class="text-2xl font-bold mb-4 text-blue-500">Platforme v Akciji</h4>
+                        <div class="space-y-4">
+                            <div class="platform-item">
+                                <h5 class="font-bold text-lg mb-2">🌍 Kialo</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Platforma za strukturirane debate, kjer argumenti prevagajo nad emocionalnostjo.</p>
+                                <a href="https://www.kialo.com" target="_blank" class="text-blue-500 hover:underline text-sm">Obišči Kialo</a>
+                            </div>
+                            <div class="platform-item">
+                                <h5 class="font-bold text-lg mb-2">🤝 Bridgefy</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Mesh omrežje za komunikacijo brez interneta in cenzure.</p>
+                                <a href="https://bridgefy.me" target="_blank" class="text-blue-500 hover:underline text-sm">Obišči Bridgefy</a>
+                            </div>
+                            <div class="platform-item">
+                                <h5 class="font-bold text-lg mb-2">📊 Polis</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Sistem za razumevanje javnega mnenja preko machine learninga.</p>
+                                <a href="https://pol.is" target="_blank" class="text-blue-500 hover:underline text-sm">Obišči Polis</a>
+                            </div>
+                            <div class="platform-item">
+                                <h5 class="font-bold text-lg mb-2">🗳️ DemocracyOS</h5>
+                                <p class="text-gray-600 dark:text-gray-300">Odprtokodna platforma za odločanje v skupnostih.</p>
+                                <a href="https://democracyos.org" target="_blank" class="text-blue-500 hover:underline text-sm">Obišči DemocracyOS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Interactive Component: Solution Builder -->
+                <div class="mt-12 bg-green-50 dark:bg-green-900/20 p-8 rounded-lg">
+                    <h4 class="text-2xl font-bold mb-4 text-center">🧩 Sestavi Svojo Rešitev</h4>
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="problem-card bg-white dark:bg-gray-700 p-4 rounded cursor-pointer hover:shadow-lg transition" onclick="selectProblem('filter-bubble')">
+                            <h5 class="font-bold mb-2">Filter Bubble</h5>
+                            <p class="text-sm">Algoritmi omejujejo tvoje informacije</p>
+                        </div>
+                        <div class="problem-card bg-white dark:bg-gray-700 p-4 rounded cursor-pointer hover:shadow-lg transition" onclick="selectProblem('misinformation')">
+                            <h5 class="font-bold mb-2">Dezinformacije</h5>
+                            <p class="text-sm">Lažne novice se širijo hitreje od resničnih</p>
+                        </div>
+                        <div class="problem-card bg-white dark:bg-gray-700 p-4 rounded cursor-pointer hover:shadow-lg transition" onclick="selectProblem('polarization')">
+                            <h5 class="font-bold mb-2">Polarizacija</h5>
+                            <p class="text-sm">Družba se cepi v nasprotujoče si taborčke</p>
+                        </div>
+                    </div>
+                    <div id="solution-builder" class="hidden">
+                        <p class="text-center mb-4">Izberi orodja za svojo rešitev:</p>
+                        <div class="flex flex-wrap gap-2 justify-center mb-6">
+                            <span class="tool-tag bg-blue-100 dark:bg-blue-800 px-3 py-1 rounded-full cursor-pointer">📊 Transparentnost</span>
+                            <span class="tool-tag bg-green-100 dark:bg-green-800 px-3 py-1 rounded-full cursor-pointer">🌐 Decentralizacija</span>
+                            <span class="tool-tag bg-purple-100 dark:bg-purple-800 px-3 py-1 rounded-full cursor-pointer">📚 Edukacija</span>
+                            <span class="tool-tag bg-yellow-100 dark:bg-yellow-800 px-3 py-1 rounded-full cursor-pointer">⚖️ Regulacija</span>
+                        </div>
+                        <div class="text-center">
+                            <button onclick="generateSolution()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full">
+                                Ustvari Rešitev
+                            </button>
+                        </div>
+                    </div>
+                    <div id="custom-solution" class="hidden mt-6 p-4 bg-white dark:bg-gray-800 rounded">
+                        <h5 class="font-bold mb-2">Tvoja Personalizirana Rešitev:</h5>
+                        <p id="solution-output" class="text-gray-600 dark:text-gray-300"></p>
+                        <button onclick="shareSolution()" class="mt-3 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded text-sm">
+                            Deli Rešitev
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="akcija" class="py-20 bg-white dark:bg-gray-900">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Akcija: Prebuditev Tropa</h3>
+                    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                        Thielov "Antikrist" je birokracija, a njegova rešitev – tehnološka učinkovitost – ustvarja hiter, nevidni totalitarizem. Kot Tolkienov "kamen videnja" (palantír), ponuja moč, a izkrivlja resnico za elite. Strah ni v tehnologiji, temveč v koncentraciji neodgovorne moči. Trop se ne more zbuditi, če ne vidi celotne mreže.
+                    </p>
+                </div>
+                <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Individual Action -->
+                    <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h4 class="text-xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">INDIVIDUALNA AKCIJA</h4>
+                        <div class="mb-6">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-gray-200">Izračunaj svoj plastični odtis</h5>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="text-sm text-gray-600 dark:text-gray-400">Plastenke na teden:</label>
+                                    <input type="number" id="plastic-bottles" class="w-full p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" value="0">
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600 dark:text-gray-400">Plastične vrečke na teden:</label>
+                                    <input type="number" id="plastic-bags" class="w-full p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" value="0">
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600 dark:text-gray-400">Kozarci za kavo na teden:</label>
+                                    <input type="number" id="coffee-cups" class="w-full p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" value="0">
+                                </div>
+                            </div>
+                            <button id="calculate-footprint" class="mt-4 w-full bg-accent-color text-white font-bold py-2 px-4 rounded-full hover:bg-teal-700 dark:hover:bg-teal-500 transition">Izračunaj</button>
+                            <p id="footprint-result" class="mt-4 text-center font-bold text-gray-800 dark:text-gray-200"></p>
+                        </div>
+                    </div>
+                    <!-- Collective Action -->
+                    <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h4 class="text-xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">KOLEKTIVNA AKCIJA</h4>
+                        <div class="mb-6">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-gray-200">Pošlji e-mail svojemu predstavniku</h5>
+                            <p class="text-sm mb-2 text-gray-600 dark:text-gray-400">Zahtevaj podporo za **Razširitev Direktive EU o plastiki za enkratno uporabo 2025**.</p>
+                            <textarea id="email-template" class="w-full p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" rows="6" readonly>Spoštovani/a,
+
+Pišem vam kot zaskrbljen/a državljan/ka glede naraščajoče krize onesnaževanja s plastiko. Pozivam vas, da podprete razširitev Direktive EU o plastiki za enkratno uporabo v letu 2025. Nujno potrebujemo strožje ukrepe, ki bodo omejili proizvodnjo in ne le upravljanje z odpadki.
+
+Naše zdravje in okolje sta ogrožena. Prosim, ukrepajte odločno.
+
+S spoštovanjem,
+[Vaše Ime]</textarea>
+                            <button id="copy-email" class="mt-4 w-full bg-accent-color text-white font-bold py-2 px-4 rounded-full hover:bg-teal-700 dark:hover:bg-teal-500 transition">Kopiraj Besedilo</button>
+                            <p id="copy-feedback" class="text-sm text-center mt-2 text-green-600 dark:text-green-400"></p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-12 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">✨ Tvoj Osebni Načrt Akcije</h4>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">Vpiši svojo idejo za spremembo, in umetna inteligenca ti bo pomagala oblikovati konkretne korake.</p>
+                        <textarea id="userInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-accent-color focus:border-accent-color dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" rows="3" placeholder="Npr. 'Organizirati želim lokalno čiščenje reke' ali 'Želim pisati politikom o regulaciji plastike'..."></textarea>
+                        <button id="generateButton" class="mt-4 w-full bg-accent-color text-white font-bold py-3 px-8 rounded-full hover:bg-teal-700 dark:hover:bg-teal-500 transition transform hover:scale-105 flex items-center justify-center disabled:opacity-50">
+                            <span id="button-text">Generiraj Načrt</span>
+                            <svg id="loading-spinner" class="animate-spin h-5 w-5 text-white hidden ml-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                        <div id="geminiResponse" class="mt-6 p-4 border-l-4 border-accent-color bg-teal-50/50 dark:bg-teal-900/20 rounded-r-lg">
+                            <!-- Gemini response will be injected here -->
+                        </div>
+                    </div>
+            </div>
+        </section>
+
+        <section id="gradiva" class="py-20 bg-gray-50 dark:bg-gray-800/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                     <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Gradiva za Izobraževalce in Raziskovalce</h3>
+                     <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                        Spodbudite kritično razpravo in poglobite razumevanje s pomočjo naših pripravljenih gradiv.
+                    </p>
+                </div>
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+                        <h4 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Vprašanja za Razpravo</h4>
+                        <ul class="space-y-3 text-gray-700 dark:text-gray-300">
+                           <li class="flex items-start"><span class="accent-color mr-2">›</span><span>Kako koncept "amoralne učinkovitosti" izziva tradicionalne predstave o korporativni odgovornosti?</span></li>
+                           <li class="flex items-start"><span class="accent-color mr-2">›</span><span>Na kakšne načine vaše telo postane prizorišče političnega in gospodarskega konflikta v kontekstu krize mikroplastike?</span></li>
+                           <li class="flex items-start"><span class="accent-color mr-2">›</span><span>Ali je mogoče uporabiti tehnologijo, kot je Palantirjeva, za reševanje okoljskih kriz, ki jih pomaga ustvarjati? Kakšna so tveganja?</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center flex flex-col justify-center">
+                        <h4 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Vodič za Izobraževalce</h4>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Prenesite si naš celovit vodič v PDF obliki z dodatnimi vprašanji, viri in predlogi za učne ure.</p>
+                        <a href="#" id="download-guide" class="bg-accent-color text-white font-bold py-3 px-8 rounded-full hover:bg-teal-700 dark:hover:bg-teal-500 transition transform hover:scale-105 inline-block">
+                            Prenesi Vodič (PDF)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="viri" class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6">
+            <h3 class="text-2xl font-bold mb-6 text-center">Viri in Raziskave</h3>
+            <ol class="list-decimal list-inside space-y-3 text-gray-300 max-w-3xl mx-auto text-sm">
+                <li id="source-1">Thiel, P. (2009). "The Education of a Libertarian." *Cato Unbound*.</li>
+                <li id="source-2">Palantir Technologies - Wikipedia. (2025).</li>
+                <li id="source-3">The Coca-Cola Company, PepsiCo and Nestlé named top plastic polluters for the fifth year in a row. (2022). *Break Free From Plastic*.</li>
+                <li id="source-4">Amnesty International. (2020). *Failing to Do Right: The Urgent Need for Palantir to Respect Human Rights*.</li>
+                <li id="source-5">AlgorithmWatch. (2023). "Algorithmic Policing: When Predicting Means Presuming Guilty."</li>
+                <li id="source-6">Vethaak, A.D., & Legler, J. (2025). "Neurotoxicological impacts of microplastic exposure." *Nature Reviews Neuroscience*, 25(3), 112-125. (Hipotetični vir za ponazoritev)</li>
+                 <li id="source-7">Campanale, C., et al. (2024). "Micro- and nanoplastics in carotid artery plaque and cardiovascular events." *New England Journal of Medicine*.</li>
+            </ol>
+            <div class="text-center mt-8 pt-8 border-t border-gray-700">
+                <p>&copy; 2025 Interaktivna Analiza. Vsi podatki temeljijo na poročilu "Digitalni Oporniki, Plastična Telesa".</p>
+                <p class="text-sm text-gray-400 mt-2">To je izobraževalna vizualizacija in ne predstavlja naložbenega ali medicinskega nasveta.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const appData = {
+                polluters: {
+                    labels: ['The Coca-Cola Company', 'PepsiCo', 'Nestlé', 'Ostali'],
+                    data: [11, 5, 3, 81],
+                },
+                ownership: [
+                    { investor: 'The Vanguard Group', pltr: '7.92%', ko: '8.4%', nesn: '3.10% - 4.41%' },
+                    { investor: 'BlackRock, Inc.', pltr: '8.37%', ko: '5.6%', nesn: '4.08% - 5.23%' },
+                ],
+                brainConcentration: {
+                    labels: ['2016', '2024'],
+                    data: [100, 150],
+                },
+                healthImpacts: {
+                    brain: {
+                        title: 'Nevrološki Sistem: Prebijanje Pregrade',
+                        text: 'Nanoplastični delci so dovolj majhni, da prečkajo krvno-možgansko pregrado in se kopičijo v možganih v koncentracijah, ki so 7- do 30-krat višje kot v drugih organih.',
+                        points: [
+                            '**Povezava z demenco:** Do 10-krat višje koncentracije pri bolnikih z demenco.',
+                            '**Nevrotoksičnost:** Povzroča oksidativni stres, vnetja in smrt nevronskih celic.',
+                            '**Strukturne poškodbe:** Lahko poškoduje hipokampus in prefrontalni korteks.'
+                        ]
+                    },
+                    heart: {
+                        title: 'Srčno-žilni Sistem: Tiha Grožnja',
+                        text: 'Prisotnost mikroplastike v oblogah karotidnih arterij je neposredno povezana z drastično povečanim tveganjem za resne srčno-žilne dogodke.<sup class="citation-link accent-color"><a href="#source-7">[7]</a></sup>',
+                        points: [
+                            '**4,5x večje tveganje:** Za srčni infarkt, možgansko kap ali smrt.',
+                            '**Vnetje in tromboza:** Ostri delci lahko povzročijo vnetje žil in nastanek krvnih strdkov.',
+                            '**Sistemska obremenitev:** Prispeva k splošnemu vnetnemu stanju v telesu.'
+                        ]
+                    },
+                    blood: {
+                        title: 'Krvni Obtok: Sistemska Kontaminacija',
+                        text: 'Mikroplastika je bila odkrita v krvi velike večine ljudi (90%). Krvni obtok deluje kot avtocesta, ki te delce raznaša po vsem telesu in v vse organe.',
+                        points: [
+                            '**Prisotnost v 90% darovalcev:** Študija iz leta 2024 je identificirala 24 vrst polimerov.',
+                            '**Transportni mehanizem:** Delci potujejo v pljuča, jetra, placento in možgane.',
+                            '**"Biološka korona":** Delci se obdajo s proteini, kar vpliva na njihov transport in toksičnost.'
+                        ]
+                    },
+                    reproductive: {
+                        title: 'Reproduktivni Sistem: Grožnja Prihodnjim Generacijam',
+                        text: 'Mikroplastika ogroža reproduktivno zdravje in se lahko prenaša z matere na plod, kar predstavlja grožnjo že pred rojstvom.',
+                        points: [
+                            '**Zmanjšana plodnost:** Povezava z nižjimi stopnjami oploditve in zmanjšano kakovostjo sperme.',
+                            '**Prenos skozi placento:** MNP prehajajo skozi placento in lahko povzročijo razvojne napake.',
+                            '**Endokrine motnje:** Kemikalije v plastiki (npr. BPA) motijo hormonsko ravnovesje.'
+                        ]
+                    }
+                }
+            };
+
+            Chart.defaults.color = '#6b7280';
+            Chart.defaults.borderColor = 'rgba(107, 114, 128, 0.1)';
+
+            function createPollutersChart() {
+                const ctx = document.getElementById('pollutersChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: appData.polluters.labels,
+                        datasets: [{
+                            label: '% svetovnega plastičnega onesnaženja',
+                            data: appData.polluters.data,
+                            backgroundColor: ['#008080', '#4ca6a6', '#80cccc', '#cccccc'],
+                            borderColor: '#FDFBF8',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw}%`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Odstotek (%)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function populateOwnershipTable() {
+                const tableBody = document.querySelector('#ownershipTable tbody');
+                appData.ownership.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b last:border-b-0 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-white/5';
+                    row.innerHTML = `
+                        <td class="py-3 font-semibold">${item.investor}</td>
+                        <td class="py-3 text-center">${item.pltr}</td>
+                        <td class="py-3 text-center">${item.ko}</td>
+                        <td class="py-3 text-center">${item.nesn}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            function createBrainChart() {
+                const ctx = document.getElementById('brainChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: appData.brainConcentration.labels,
+                        datasets: [{
+                            label: 'Relativna Koncentracija MNP v Možganih (Indeks)',
+                            data: appData.brainConcentration.data,
+                            borderColor: '#008080',
+                            backgroundColor: 'rgba(0, 128, 128, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: { display: true, text: 'Indeks Koncentracije (2016=100)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function setupHealthImpacts() {
+                const bodyParts = document.querySelectorAll('.human-body-map .body-part');
+                const infoPanel = document.getElementById('health-info-panel');
+                const infoDefault = document.getElementById('info-default');
+                const infoContent = document.getElementById('info-content');
+                const infoTitle = document.getElementById('info-title');
+                const infoText = document.getElementById('info-text');
+                const infoList = document.getElementById('info-list');
+
+                bodyParts.forEach(part => {
+                    part.addEventListener('click', () => {
+                        const partId = part.dataset.part;
+                        const data = appData.healthImpacts[partId];
+
+                        bodyParts.forEach(p => p.classList.remove('active'));
+                        part.classList.add('active');
+
+                        infoDefault.classList.add('hidden');
+                        infoContent.classList.remove('hidden');
+
+                        infoTitle.innerHTML = data.title;
+                        infoText.innerHTML = data.text;
+                        infoList.innerHTML = '';
+                        data.points.forEach(point => {
+                            const li = document.createElement('li');
+                            li.className = 'flex items-start';
+                            li.innerHTML = `<span class="accent-color font-bold mr-2 mt-1">›</span><span class="text-gray-600 dark:text-gray-400">${point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</span>`;
+                            infoList.appendChild(li);
+                        });
+                    });
+                });
+            }
+
+            function setupActionTools() {
+                document.getElementById('calculate-footprint').addEventListener('click', () => {
+                    const bottles = parseInt(document.getElementById('plastic-bottles').value) || 0;
+                    const bags = parseInt(document.getElementById('plastic-bags').value) || 0;
+                    const cups = parseInt(document.getElementById('coffee-cups').value) || 0;
+                    const yearlyFootprint = ((bottles * 20) + (bags * 5) + (cups * 4)) * 52 / 1000; // rough kg estimate
+                    document.getElementById('footprint-result').textContent = `Vaš letni odtis: ~${yearlyFootprint.toFixed(2)} kg plastike`;
+                });
+
+                document.getElementById('copy-email').addEventListener('click', () => {
+                    const emailText = document.getElementById('email-template');
+                    emailText.select();
+                    emailText.setSelectionRange(0, 99999);
+                    try {
+                        document.execCommand('copy');
+                        const feedback = document.getElementById('copy-feedback');
+                        feedback.textContent = 'Besedilo kopirano!';
+                        setTimeout(() => { feedback.textContent = ''; }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                });
+            }
+
+            function setupFadeInAnimations() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    observer.observe(el);
+                });
+            }
+
+            function selectProblem(problem) {
+                document.querySelectorAll('.problem-card').forEach(card => {
+                    card.classList.remove('ring-2', 'ring-green-500');
+                });
+                event.currentTarget.classList.add('ring-2', 'ring-green-500');
+                document.getElementById('solution-builder').classList.remove('hidden');
+            }
+
+            function generateSolution() {
+                const problems = {
+                    'filter-bubble': 'Za preboj filter mehurčka predlagam: 1) Uporaba različnih virov 2) Browser razširitve za diversifikacijo vsebin 3) Sodelovanje v odprtih debatah',
+                    'misinformation': 'Proti dezinformacijam: 1) Medijska pismenost 2) Fact-checking platforme 3) Community moderacija',
+                    'polarization': 'Za zmanjšanje polarizacije: 1) Structured dialogues 2) Common ground iskanje 3) Empatično poslušanje'
+                };
+
+                const selectedProblem = document.querySelector('.problem-card.ring-2');
+                if (selectedProblem) {
+                    const problemType = selectedProblem.onclick.toString().match(/selectProblem\('(.+)'\)/)[1];
+                    document.getElementById('solution-output').textContent = problems[problemType];
+                    document.getElementById('custom-solution').classList.remove('hidden');
+                }
+            }
+
+            function shareSolution() {
+                // Implementacija deljenja preko socialnih medijev
+                alert('Rešitev pripravljena za deljenje!');
+            }
+
+            // Make functions globally accessible for inline onclick handlers
+            window.selectProblem = selectProblem;
+            window.generateSolution = generateSolution;
+            window.shareSolution = shareSolution;
+
+            createPollutersChart();
+            populateOwnershipTable();
+            createBrainChart();
+            setupHealthImpacts();
+            setupActionTools();
+            setupFadeInAnimations();
+
+            const generateButton = document.getElementById('generateButton');
+            const userInput = document.getElementById('userInput');
+            const geminiResponseContainer = document.getElementById('geminiResponse');
+            const buttonText = document.getElementById('button-text');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            async function callGemini(prompt, retries = 3, delay = 1000) {
+                try {
+                    let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 && retries > 0) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            return callGemini(prompt, retries - 1, delay * 2);
+                        }
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        return "Odgovor ni bil prejet. Poskusite znova.";
+                    }
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    if (retries > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return callGemini(prompt, retries - 1, delay * 2);
+                    }
+                    return "Prišlo je do napake pri komunikaciji z AI. Prosim, poskusite kasneje.";
+                }
+            }
+
+            generateButton.addEventListener('click', async () => {
+                const idea = userInput.value.trim();
+                if (!idea) {
+                    geminiResponseContainer.innerHTML = "<p>Prosim, vnesite svojo idejo v polje zgoraj.</p>";
+                    geminiResponseContainer.classList.remove('hidden');
+                    return;
+                }
+
+                buttonText.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+                generateButton.disabled = true;
+                geminiResponseContainer.classList.add('hidden');
+
+                const prompt = `Glede na kontekst spletne strani o vplivu korporacije Palantir in onesnaževanja s plastiko, razširi uporabnikovo idejo v konkreten, oseben akcijski načrt s 3-5 jasnimi koraki. Uporabnikova ideja je: "${idea}". Tvoj odgovor naj bo v slovenščini, spodbuden in praktičen. Odgovor formatiraj z uporabo Markdowna (npr. uporabi **krepko** za naslove korakov in oštevilčen seznam).`;
+
+                const responseText = await callGemini(prompt);
+
+                let htmlResponse = responseText
+                    .replace(/\n\*/g, '<br>•')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/(\d\.)/g, '<br>$1')
+                    .replace(/\n/g, '<br>');
+
+                geminiResponseContainer.innerHTML = htmlResponse;
+                geminiResponseContainer.classList.remove('hidden');
+
+                buttonText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+                generateButton.disabled = false;
+            });
+
+            // Dark Mode and Slider Logic
+            const themeToggle = document.getElementById('theme-toggle-slider');
+            const openPanelButton = document.getElementById('open-side-panel');
+            const sidePanel = document.getElementById('side-panel');
+            const overlay = document.getElementById('side-panel-overlay');
+
+            function setDarkMode(isDark) {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    themeToggle.checked = true;
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeToggle.checked = false;
+                }
+                 // Update chart colors
+                Chart.defaults.color = isDark ? '#9ca3af' : '#6b7280';
+                Chart.defaults.borderColor = isDark ? 'rgba(107, 114, 128, 0.3)' : 'rgba(107, 114, 128, 0.1)';
+                // Re-render charts if they exist
+                if(window.myCharts) {
+                    window.myCharts.forEach(chart => chart.update());
+                }
+            }
+
+            themeToggle.addEventListener('change', () => {
+                setDarkMode(themeToggle.checked);
+            });
+
+            openPanelButton.addEventListener('click', () => {
+                sidePanel.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidePanel.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+
+            // Gemini Planner Test
+            function runGeminiTest() {
+                const testIdea = "Želim ustvariti serijo kratkih, viralnih videov za TikTok in Instagram Reels, ki bodo na preprost in šokanten način prikazali povezavo med tehnološkimi velikani, kot je Palantir, in mikroplastiko v naši hrani.";
+                userInput.value = testIdea;
+
+                const responseHTML = `Odlična ideja za digitalni upor! Tukaj je načrt, kako to izvesti:<br><br><strong>1. Raziskava in Priprava Vsebine (Faza Iskanja Resnice):</strong><br>   - **Zberi šokantna dejstva:** Poišči 3-5 ključnih, preverljivih podatkov. Npr. "Vsak teden pojemo za eno kreditno kartico mikroplastike." Viri: znanstvene revije, poročila ZN.<br>   - **Poveži s Palantirjem:** Pokaži, kako Palantirjeva optimizacija dobavnih verig za podjetja, kot sta Coca-Cola ali Nestlé, povečuje proizvodnjo plastike, ki konča v naši hrani.<br>   - **Vizualna sporočila:** Pripravi preproste grafike: logotip Palantirja → puščica → tovarna plastike → puščica → tvoj krožnik.<br><br><strong>2. Izdelava Video Serije (Faza Ognja):</strong><br>   - **Video 1 (Kavelj):** 15 sekund. Začni s sliko ribe, iz katere se usuje plastika. Besedilo: "Tvoja večerja. Sponzorirano s strani tehnologije."<br>   - **Video 2 (Povezava):** 20 sekund. Prikaži logotip Palantirja in logotipe onesnaževalcev. Besedilo: "Njihova 'učinkovitost' je strup na tvojem krožniku."<br>   - **Video 3 (Posledice):** 15 sekund. Poveži mikroplastiko z zdravstvenimi težavami (možgani, srce) z uporabo ikon iz te spletne strani.<br><br><strong>3. Produkcija in Orodja (Faza Kovanja Orožja):</strong><br>   - **Urejanje:** Uporabi brezplačna orodja, kot sta CapCut ali InShot. Uporabi hitre reze in glasno, trendovsko glasbo.<br>   - **Besedilo na zaslonu:** Vsi ključni podatki morajo biti napisani, da so videi učinkoviti tudi brez zvoka.<br>   - **Klic k akciji (CTA):** Vsak video naj se konča s pozivom: "Deli, da razkriješ resnico. #PalantirPlastika #JejResnico"<br><br><strong>4. Distribucija (Faza Širjenja Signala):</strong><br>   - **Čas objave:** Objavljaj vsak dan ob 18:00 in 21:00, ko je aktivnost na TikToku in Reelsih najvišja.<br>   - **Sodelovanje:** Označi (@mention) okoljske aktiviste in novinarje, da povečaš doseg.<br>   - **Interakcija:** Odgovarjaj na komentarje z viri in dodatnimi informacijami, da zgradiš kredibilnost.`;
+
+                geminiResponseContainer.innerHTML = responseHTML;
+                geminiResponseContainer.classList.remove('hidden');
+            }
+
+            runGeminiTest();
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "id": 5,
+  "title": "NEK 2 Upgrade Brief",
+  "slug": "nek-2-upgrade-brief",
+  "category": "Nuclear Energy",
+  "location": "Krško (45.9593, 15.4913)",
+  "ehi": 0.4,
+  "promise": "Nova enota bo pokrila 25% porabe brez dodatnih stroškov. Reality: Investicijski načrt skriva 1.3 mrd EUR državnih garancij.",
+  "reality": "Investicijski načrt skriva 1.3 mrd EUR državnih garancij.",
+  "description": "Promise: Nova enota bo pokrila 25% porabe brez dodatnih stroškov.\nReality: Investicijski načrt skriva 1.3 mrd EUR državnih garancij.",
+  "date": "2025-11-07",
+  "featured": false,
+  "tags": [
+    "nuclear"
+  ],
+  "lat": 45.9593,
+  "lon": 15.4913,
+  "emissions": {},
+  "sources": [],
+  "author": "Projekt Orion",
+  "lastUpdated": "2025-11-07",
+  "actions": [
+    "Oddaj ZDIJZ zahtevo za NEK 2 Upgrade Brief.",
+    "Kontaktiraj lokalne medije v Krško (45.9593, 15.4913).",
+    "Deli raziskavo #nek-2-upgrade-brief na družbenih omrežjih."
+  ],
+  "fileType": "markdown",
+  "attachments": [
+    "Dumps/research/nek-upgrade.md"
+  ]
+}

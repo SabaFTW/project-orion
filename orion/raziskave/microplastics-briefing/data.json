@@ -1,0 +1,34 @@
+{
+  "id": 8,
+  "title": "Microplastics Briefing",
+  "slug": "microplastics-briefing",
+  "category": "Okolje",
+  "location": "",
+  "ehi": 0.4,
+  "promise": "",
+  "reality": "",
+  "description": "Avdio povzetek iz arhiva Dumps/audio. Dodaj kratek povzetek v README ali markdown datoteko za bogatejši opis.",
+  "date": "2025-11-07",
+  "featured": false,
+  "tags": [
+    "microplastics",
+    "audio"
+  ],
+  "lat": null,
+  "lon": null,
+  "emissions": {},
+  "sources": [
+    "Audio briefing: microplastics-briefing.mp3"
+  ],
+  "author": "Projekt Orion",
+  "lastUpdated": "2025-11-07",
+  "actions": [
+    "Oddaj ZDIJZ zahtevo za Microplastics Briefing.",
+    "Kontaktiraj lokalne medije v lokalno okolje.",
+    "Deli raziskavo #microplastics-briefing na družbenih omrežjih."
+  ],
+  "fileType": "audio",
+  "attachments": [
+    "Dumps/audio/microplastics-briefing.mp3"
+  ]
+}

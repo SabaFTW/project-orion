@@ -1,0 +1,20 @@
+{
+    "monthly_target": "\u20ac1000",
+    "current_month": "\u20ac130",
+    "revenue_streams": [
+        {
+            "name": "Truth Fracture Bundle",
+            "platform": "Gumroad",
+            "price": "$3.33",
+            "sales": 0,
+            "revenue": "$0"
+        },
+        {
+            "name": "VES Consulting",
+            "platform": "Direct",
+            "rate": "\u20ac100/hour",
+            "hours_sold": 0,
+            "revenue": "\u20ac0"
+        }
+    ]
+}

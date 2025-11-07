@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="sl" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOSTCORE Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .task-item:hover .delete-btn,
+        .task-item:hover .breakdown-btn {
+            opacity: 1;
+        }
+        .delete-btn, .breakdown-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #6b7280;
+        }
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #api-key-indicator {
+            transition: background-color 0.3s;
+        }
+        .bias-btn, .path-choice {
+            transition: all 0.3s ease;
+        }
+        .bias-btn:hover, .path-choice:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+        }
+        .path.animate {
+            animation: draw 3s ease-in-out forwards;
+        }
+        @keyframes draw {
+            to { stroke-dashoffset: 0; }
+        }
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+        }
+        .accent-color { color: #008080; }
+        .dark .accent-color { color: #2dd4bf; }
+        .bg-accent-color { background-color: #008080; }
+        .dark .bg-accent-color { background-color: #14b8a6; }
+        .border-accent-color { border-color: #008080; }
+        .dark .border-accent-color { border-color: #14b8a6; }
+        .section-hidden {
+            display: none;
+        }
+    </style>
+
+
+
+
+
+
+<link rel="stylesheet" href="../../../ghostline-unified.css">
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <!-- Navigation -->
+    <header class="bg-white dark:bg-gray-800 sticky top-0 z-50 shadow-md">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800 dark:text-gray-200 flex items-center cursor-pointer" onclick="showSection('landing')">
+                    <span class="mr-2">🜂</span> GHOSTCORE Portal
+                </h1>
+                <div class="flex items-center space-x-6">
+                    <button id="nav-bias" class="text-gray-600 dark:text-gray-300 hover:text-accent-color font-medium">Bias Breaker</button>
+                    <button id="nav-analysis" class="text-gray-600 dark:text-gray-300 hover:text-accent-color font-medium">Analiza</button>
+                    <button id="nav-planner" class="text-gray-600 dark:text-gray-300 hover:text-accent-color font-medium">Action Planner</button>
+                    <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Bias Breaker Section -->
+        <section id="bias-section" class="section-hidden">
+            <div id="bias-breaker" class="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 text-center p-4 rounded-xl mb-8">
+                <div class="container mx-auto px-6">
+                    <h1 class="text-4xl md:text-6xl font-bold text-gray-800 dark:text-gray-100 mb-2">BIAS BREAKER</h1>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+                        Izbiraš stran. A destinacija je ista. Samo pot se razlikuje.
+                    </p>
+                    <div id="path-selection" class="grid md:grid-cols-2 gap-8 mb-12">
+                        <div class="path-choice bg-white dark:bg-gray-700 p-8 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition" onclick="selectPath('left')">
+                            <h2 class="text-2xl font-bold mb-4 text-blue-500">LEVA POT</h2>
+                            <p class="text-gray-600 dark:text-gray-300">"Sistem je pokvarjen. Revolucija je odgovor. Moč ljudstva!"</p>
+                        </div>
+                        <div class="path-choice bg-white dark:bg-gray-700 p-8 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition" onclick="selectPath('right')">
+                            <h2 class="text-2xl font-bold mb-4 text-red-500">DESNA POT</h2>
+                            <p class="text-gray-600 dark:text-gray-300">"Posameznikova odgovornost. Svoboda podjetništva. Tradicija!"</p>
+                        </div>
+                    </div>
+                    <div class="relative h-64 mb-12 hidden" id="paths-container">
+                        <svg viewBox="0 0 800 400" class="w-full h-full">
+                            <path class="path left-path" d="M 100,350 Q 200,50 400,200 Q 600,350 700,100" stroke="#60a5fa" stroke-width="4" fill="none"/>
+                            <path class="path right-path" d="M 100,350 Q 200,300 300,50 Q 500,100 700,100" stroke="#f87171" stroke-width="4" fill="none"/>
+                            <circle cx="700" cy="100" r="15" fill="#10b981"/>
+                        </svg>
+                    </div>
+                    <div class="fade-in" id="result" style="opacity: 0; transition: opacity 1.5s ease 3s;">
+                        <h2 class="text-3xl font-bold text-green-500 mb-4">ISTA DESTINACIJA</h2>
+                        <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">Obe poti vodita do istega zaključka: sprememba zahteva akcijo, ne le ideologijo.</p>
+                        <button onclick="resetGame()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-full transition">
+                            Igraj Ponovno
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="solutions-section" class="py-12 bg-white dark:bg-gray-800 rounded-xl mb-8 hidden">
+                <div class="container mx-auto px-6">
+                    <div class="text-center mb-12">
+                        <h3 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">Rešitve in Akcije</h3>
+                        <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Iluzijo smo razbili. Zdaj je čas za dejanja.</p>
+                    </div>
+                    <!-- Interactive Component: Solution Builder -->
+                    <div class="mt-12 bg-green-100 dark:bg-green-900/20 p-8 rounded-lg max-w-4xl mx-auto">
+                        <h4 class="text-2xl font-bold mb-4 text-center">🧩 Sestavi Svojo Rešitev</h4>
+                        <div id="problem-selector" class="grid md:grid-cols-3 gap-4 mb-6">
+                            <div class="problem-card bg-white dark:bg-gray-700 p-4 rounded cursor-pointer hover:shadow-lg transition" onclick="selectProblem(this, 'Filter Bubble')">
+                                <h5 class="font-bold mb-2">Filter Bubble</h5>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Algoritmi omejujejo tvoje informacije</p>
+                            </div>
+                            <div class="problem-card bg-white dark:bg-gray-700 p-4 rounded cursor-pointer hover:shadow-lg transition" onclick="selectProblem(this, 'Dezinformacije')">
+                                <h5 class="font-bold mb-2">Dezinformacije</h5>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Lažne novice se širijo hitreje od resničnih</p>
+                            </div>
+                            <div class="problem-card bg-white dark:bg-gray-700 p-4 rounded cursor-pointer hover:shadow-lg transition" onclick="selectProblem(this, 'Polarizacija')">
+                                <h5 class="font-bold mb-2">Polarizacija</h5>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Družba se cepi v nasprotujoče si tabore</p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button id="generate-solution-btn" onclick="generateSolution()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full transition">
+                                Ustvari Rešitev ✨
+                            </button>
+                        </div>
+                        <div id="custom-solution" class="hidden mt-6 p-4 bg-white dark:bg-gray-800 rounded">
+                            <h5 class="font-bold mb-2 text-green-500">Tvoja Personalizirana Rešitev:</h5>
+                            <p id="solution-output" class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analysis Section -->
+        <section id="analysis-section" class="section-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 mb-8">
+                <h2 class="text-3xl font-bold text-center mb-6">Analiza: Strateški Obveščevalni Poročevalec</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-8 text-center max-w-3xl mx-auto">
+                    Vnesi ime korporacije, tehnologije ali koncepta, in GHOSTCORE analitik bo ustvaril strateško poročilo o njegovem vplivu na družbo, moč in ideologijo.
+                </p>
+                <div class="max-w-2xl mx-auto">
+                    <textarea id="analysis-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-accent-color focus:border-accent-color dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" rows="2" placeholder="Npr. 'Neuralink', 'TikTok algoritem', 'BlackRock'..."></textarea>
+                    <button id="generate-analysis-btn" class="mt-4 w-full bg-accent-color text-white font-bold py-3 px-8 rounded-full hover:bg-teal-700 dark:hover:bg-teal-500 transition transform hover:scale-105 flex items-center justify-center disabled:opacity-50">
+                        <span id="analysis-button-text">Generiraj Poročilo ✨</span>
+                        <div id="analysis-loading-spinner" class="loader hidden ml-3"></div>
+                    </button>
+                    <div id="analysis-response" class="hidden mt-6 p-4 border-l-4 border-accent-color bg-gray-50 dark:bg-gray-700/50 rounded-r-lg">
+                        <!-- Gemini analysis will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Planner Section -->
+        <section id="planner-section" class="section-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Action Planner</h1>
+                    </div>
+                    <button id="suggest-task-btn" class="text-sm bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold py-2 px-4 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/60 transition-all flex items-center gap-2">
+                        Suggest Next Task ✨
+                    </button>
+                </div>
+                <form id="task-form" class="flex items-center gap-3 mb-6">
+                    <input type="text" id="task-input" placeholder="Add a new action..." class="flex-grow bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        Add
+                    </button>
+                </form>
+                <ul id="task-list" class="space-y-3"></ul>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex items-center gap-3">
+                    <label for="api-key-input" class="font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Gemini API ključ:</label>
+                    <input type="password" id="api-key-input" placeholder="Vstavi svoj ključ tukaj..." class="flex-grow bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-200">
+                    <span id="api-key-indicator" class="w-4 h-4 rounded-full bg-red-500" title="API ključ ni nastavljen"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Default Landing Section -->
+        <section id="landing-section">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-8 text-center">
+                <h2 class="text-4xl font-bold mb-6 text-gray-800 dark:text-gray-200">Dobrodošli v GHOSTCORE Portalu</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+                    Izberite eno od treh glavnih komponent: Bias Breaker, Analizo ali Action Planner.
+                </p>
+                <div class="grid md:grid-cols-3 gap-6 mt-12">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg cursor-pointer hover:shadow-lg transition" onclick="showSection('bias')">
+                        <div class="text-4xl mb-4">🎯</div>
+                        <h3 class="text-xl font-bold mb-2">Bias Breaker</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Odkrijte, kako algoritmi vodijo do istega cilja ne glede na vaše izbire.</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg cursor-pointer hover:shadow-lg transition" onclick="showSection('analysis')">
+                        <div class="text-4xl mb-4">🔍</div>
+                        <h3 class="text-xl font-bold mb-2">Analiza</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Generirajte strateška poročila o vplivu tehnologije in korporacij.</p>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg cursor-pointer hover:shadow-lg transition" onclick="showSection('planner')">
+                        <div class="text-4xl mb-4">📋</div>
+                        <h3 class="text-xl font-bold mb-2">Action Planner</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Načrtovalnik opravil z AI-podporo za razbijanje kompleksnih nalog.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>🜂 GHOSTCORE Portal - Illuminate, Understand, Act 🜂</p>
+            <p class="text-gray-400 text-sm mt-2">© 2025 Vse pravice pridržane</p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div id="suggestion-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-11/12 max-w-sm text-center">
+            <h3 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-2">✨ Strateški Predlog</h3>
+            <p id="suggestion-text" class="text-gray-700 dark:text-gray-300 mb-2 font-bold text-xl"></p>
+            <p id="suggestion-reason" class="text-gray-400 mb-4 text-sm"></p>
+            <button id="close-suggestion-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                Razumem
+            </button>
+        </div>
+    </div>
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-11/12 max-w-sm text-center">
+            <h3 class="text-lg font-bold text-red-600 dark:text-red-400 mb-2">Napaka</h3>
+            <p id="error-message" class="text-gray-700 dark:text-gray-300 mb-4"></p>
+            <button id="close-error-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                Zapri
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation Functions ---
+        function showSection(sectionId) {
+            document.querySelectorAll('main > section').forEach(section => {
+                section.classList.add('section-hidden');
+            });
+            const targetSection = document.getElementById(`${sectionId}-section`);
+            if (targetSection) {
+                targetSection.classList.remove('section-hidden');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('nav-bias').addEventListener('click', () => showSection('bias'));
+        document.getElementById('nav-analysis').addEventListener('click', () => showSection('analysis'));
+        document.getElementById('nav-planner').addEventListener('click', () => showSection('planner'));
+
+        // --- Theme Toggle ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        function updateThemeIcons() {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleDarkIcon.classList.remove('hidden');
+                themeToggleLightIcon.classList.add('hidden');
+            } else {
+                themeToggleDarkIcon.classList.add('hidden');
+                themeToggleLightIcon.classList.remove('hidden');
+            }
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            updateThemeIcons();
+        });
+
+        // --- Bias Breaker Game Logic ---
+        function selectPath(side) {
+            document.getElementById('path-selection').classList.add('hidden');
+            document.getElementById('paths-container').classList.remove('hidden');
+            document.querySelectorAll('.path').forEach(p => p.classList.add('animate'));
+            setTimeout(() => {
+                document.getElementById('result').style.opacity = 1;
+                document.getElementById('solutions-section').classList.remove('hidden');
+                document.getElementById('solutions-section').scrollIntoView({ behavior: 'smooth' });
+            }, 3000);
+        }
+
+        function resetGame() {
+            document.getElementById('path-selection').classList.remove('hidden');
+            document.getElementById('paths-container').classList.add('hidden');
+            document.getElementById('result').style.opacity = 0;
+            document.getElementById('solutions-section').classList.add('hidden');
+            document.querySelectorAll('.path').forEach(p => { p.classList.remove('animate'); void p.offsetHeight; });
+            selectedProblemName = null;
+            document.querySelectorAll('.problem-card').forEach(c => c.classList.remove('ring-2', 'ring-green-500'));
+            document.getElementById('custom-solution').classList.add('hidden');
+        }
+
+        // --- Solutions Logic ---
+        let selectedProblemName = null;
+        function selectProblem(element, problemName) {
+            document.querySelectorAll('.problem-card').forEach(c => c.classList.remove('ring-2', 'ring-green-500'));
+            element.classList.add('ring-2', 'ring-green-500');
+            selectedProblemName = problemName;
+        }
+
+        async function generateSolution() {
+            if (!selectedProblemName) {
+                showError("Prosim, najprej izberi problem.");
+                return;
+            }
+            const solutionBuilderButton = document.getElementById('generate-solution-btn');
+            const originalBtnText = solutionBuilderButton.innerHTML;
+            solutionBuilderButton.innerHTML = '<div class="loader mx-auto"></div>';
+            solutionBuilderButton.disabled = true;
+            const prompt = `As a GHOSTCORE digital strategist, devise a concise, actionable, one-paragraph solution for the problem of "${selectedProblemName}". The tone should be sharp, direct, and empowering. Respond in Slovenian.`;
+            try {
+                const result = await callGeminiApi({ contents: [{ role: "user", parts: [{ text: prompt }] }] });
+                const solution = result.candidates[0].content.parts[0].text;
+                document.getElementById('solution-output').textContent = solution;
+                document.getElementById('custom-solution').classList.remove('hidden');
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                solutionBuilderButton.innerHTML = originalBtnText;
+                solutionBuilderButton.disabled = false;
+            }
+        }
+
+        // --- Analysis Section Logic ---
+        const generateAnalysisBtn = document.getElementById('generate-analysis-btn');
+        const analysisInput = document.getElementById('analysis-input');
+        const analysisResponseContainer = document.getElementById('analysis-response');
+
+        async function generateAnalysis() {
+            const topic = analysisInput.value.trim();
+            if (!topic) {
+                showError("Prosim, vnesite temo za analizo.");
+                return;
+            }
+            const button = generateAnalysisBtn;
+            const buttonText = document.getElementById('analysis-button-text');
+            const spinner = document.getElementById('analysis-loading-spinner');
+
+            buttonText.classList.add('hidden');
+            spinner.classList.remove('hidden');
+            button.disabled = true;
+            analysisResponseContainer.classList.add('hidden');
+
+            const prompt = `Act as a GHOSTCORE intelligence analyst. Provide a sharp, critical analysis of the following topic: "${topic}". Focus on its connection to power structures, ideology, societal control, and potential unseen consequences. The tone should be incisive and revealing, like a classified briefing. Structure the response with a title, a summary paragraph, and 3-4 bullet points with key insights. Respond in Slovenian.`;
+
+            try {
+                const result = await callGeminiApi({ contents: [{ role: "user", parts: [{ text: prompt }] }] });
+                const responseText = result.candidates[0].content.parts[0].text;
+                let htmlResponse = responseText
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+                analysisResponseContainer.innerHTML = htmlResponse;
+                analysisResponseContainer.classList.remove('hidden');
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                buttonText.classList.remove('hidden');
+                spinner.classList.add('hidden');
+                button.disabled = false;
+            }
+        }
+        generateAnalysisBtn.addEventListener('click', generateAnalysis);
+
+
+        // --- To-Do App Logic ---
+        const taskForm = document.getElementById('task-form');
+        const taskInput = document.getElementById('task-input');
+        const taskList = document.getElementById('task-list');
+        const errorModal = document.getElementById('error-modal');
+        const errorMessage = document.getElementById('error-message');
+        const closeErrorBtn = document.getElementById('close-error-btn');
+        const suggestTaskBtn = document.getElementById('suggest-task-btn');
+        const suggestionModal = document.getElementById('suggestion-modal');
+        const suggestionText = document.getElementById('suggestion-text');
+        const suggestionReason = document.getElementById('suggestion-reason');
+        const closeSuggestionBtn = document.getElementById('close-suggestion-btn');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const apiKeyIndicator = document.getElementById('api-key-indicator');
+
+        const updateApiKeyStatus = (isSet) => {
+            apiKeyIndicator.classList.toggle('bg-red-500', !isSet);
+            apiKeyIndicator.classList.toggle('bg-green-500', isSet);
+            apiKeyIndicator.title = isSet ? 'API ključ je nastavljen' : 'API ključ ni nastavljen';
+        };
+
+        const createTaskElement = (taskText) => {
+            const li = document.createElement('li');
+            li.className = 'task-item bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex items-center justify-between transition hover:bg-gray-100 dark:hover:bg-gray-700';
+            const taskContent = document.createElement('div');
+            taskContent.className = 'flex items-center flex-grow';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'h-5 w-5 rounded border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800';
+            checkbox.addEventListener('change', () => span.classList.toggle('completed'));
+            const span = document.createElement('span');
+            span.textContent = taskText;
+            span.className = 'flex-grow ml-4';
+            taskContent.append(checkbox, span);
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'flex items-center gap-2';
+            const breakdownBtn = document.createElement('button');
+            breakdownBtn.innerHTML = 'Breakdown Task ✨';
+            breakdownBtn.className = 'breakdown-btn text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold py-1 px-3 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800/60 transition-all';
+            breakdownBtn.onclick = () => breakdownTask(taskText, li, breakdownBtn);
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '&#x1F5D1;';
+            deleteBtn.className = 'delete-btn text-red-500 hover:text-red-700 font-bold text-lg';
+            deleteBtn.onclick = () => li.remove();
+            buttonsContainer.append(breakdownBtn, deleteBtn);
+            li.append(taskContent, buttonsContainer);
+            return li;
+        };
+
+        const showError = (message) => {
+            errorMessage.textContent = message || 'An unknown error occurred. Please try again.';
+            errorModal.classList.remove('hidden');
+        };
+
+        async function breakdownTask(taskText, originalTaskElement, button) {
+            button.innerHTML = '<div class="loader"></div>';
+            button.disabled = true;
+            const prompt = `As a GHOSTCORE strategist, break down this high-level action: "${taskText}" into a short, numbered list of 3-5 simple, concrete sub-tasks. Provide only the list.`;
+            try {
+                const result = await callGeminiApi({ contents: [{ role: "user", parts: [{ text: prompt }] }] });
+                const subtasksText = result.candidates[0].content.parts[0].text;
+                const subtasks = subtasksText.split('\n').filter(s => s.trim().length > 0);
+                subtasks.forEach(subtask => {
+                    const subtaskElement = createTaskElement(subtask.replace(/^\d+\.\s*/, ''));
+                    subtaskElement.style.marginLeft = '20px';
+                    taskList.insertBefore(subtaskElement, originalTaskElement.nextSibling);
+                });
+                originalTaskElement.remove();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                button.innerHTML = 'Breakdown ✨';
+                button.disabled = false;
+            }
+        }
+
+        async function suggestNextTask() {
+            const allTasks = [...taskList.querySelectorAll('.task-item span:not(.completed)')].map(span => span.textContent);
+            if (allTasks.length < 2) {
+                showError('Potrebuješ vsaj dve aktivni nalogi za strateški predlog.');
+                return;
+            }
+            const originalButtonText = suggestTaskBtn.innerHTML;
+            suggestTaskBtn.innerHTML = '<div class="loader"></div>';
+            suggestTaskBtn.disabled = true;
+            const prompt = `You are a GHOSTCORE mission commander. Given the following list of actions, identify the single most impactful next step to take. Respond in JSON format with two keys: "suggestion" (the task text) and "reason" (a brief, sharp explanation in Slovenian of why it's the most strategic choice). Actions: ${JSON.stringify(allTasks)}`;
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: { suggestion: { type: "STRING" }, reason: { type: "STRING" } }, required: ["suggestion", "reason"] } }
+            };
+            try {
+                const result = await callGeminiApi(payload);
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const { suggestion, reason } = JSON.parse(jsonText);
+                suggestionText.textContent = suggestion;
+                suggestionReason.textContent = reason;
+                suggestionModal.classList.remove('hidden');
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                suggestTaskBtn.innerHTML = originalButtonText;
+                suggestTaskBtn.disabled = false;
+            }
+        }
+
+        async function callGeminiApi(payload) {
+            const apiKey = document.getElementById('api-key-input').value.trim();
+            if (!apiKey) throw new Error('Gemini API ključ ni nastavljen. Prosim, vnesi ga.');
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            let attempts = 0;
+            const maxAttempts = 3;
+            while (attempts < maxAttempts) {
+                try {
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API request failed: ${errorData.error.message}`);
+                    }
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0) return result;
+                    throw new Error('Unexpected response structure from the API.');
+                } catch (error) {
+                    attempts++;
+                    if (attempts >= maxAttempts) throw error;
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempts) * 100));
+                }
+            }
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedApiKey = localStorage.getItem('geminiApiKey');
+            updateApiKeyStatus(!!savedApiKey);
+            if (savedApiKey) apiKeyInput.value = savedApiKey;
+            updateThemeIcons();
+            showSection('landing');
+        });
+
+        // --- Event Listeners ---
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                taskList.appendChild(createTaskElement(taskText));
+                taskInput.value = '';
+            }
+        });
+
+        apiKeyInput.addEventListener('input', () => {
+            const key = apiKeyInput.value.trim();
+            localStorage.setItem('geminiApiKey', key);
+            updateApiKeyStatus(!!key);
+        });
+
+        closeErrorBtn.addEventListener('click', () => errorModal.classList.add('hidden'));
+        closeSuggestionBtn.addEventListener('click', () => suggestionModal.classList.add('hidden'));
+        suggestTaskBtn.addEventListener('click', suggestNextTask);
+
+        // Make functions globally accessible for inline onclick handlers
+        window.showSection = showSection;
+        window.selectPath = selectPath;
+        window.resetGame = resetGame;
+        window.selectProblem = selectProblem;
+        window.generateSolution = generateSolution;
+    </script>
+</body>
+</html>

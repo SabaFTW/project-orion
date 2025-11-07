@@ -1,0 +1,167 @@
+/* Custom styles for Projekt Orion */
+
+/* Scrollbar hiding for mobile nav */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Tab transitions */
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Active tab styling */
+.tab-btn.active {
+    border-color: #0fccce;
+    color: #0fccce;
+    background-color: rgba(15, 204, 206, 0.05);
+}
+
+/* Map container */
+#map {
+    height: 600px;
+    width: 100%;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 2px solid #334155;
+}
+
+/* Card hover effects */
+.research-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.research-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(15, 204, 206, 0.2);
+}
+
+/* EHI Badge */
+.ehi-badge {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 3px solid rgba(15, 204, 206, 0.2);
+    border-top-color: #0fccce;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar for desktop */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Responsive map height */
+@media (max-width: 768px) {
+    #map {
+        height: 400px;
+    }
+}
+
+/* Print styles */
+@media print {
+    header, footer, nav {
+        display: none;
+    }
+
+    .tab-content {
+        display: block !important;
+    }
+}
+
+/* PWA Install button pulse */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+#installBtn {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Timeline connector */
+.timeline-line {
+    position: relative;
+}
+
+.timeline-line::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #0fccce, transparent);
+}
+
+/* Network graph styles */
+.network-node {
+    transition: all 0.3s ease;
+}
+
+.network-node:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+/* Action card */
+.action-card {
+    border-left: 4px solid #0fccce;
+    background: linear-gradient(to right, rgba(15, 204, 206, 0.05), transparent);
+}
+
+/* Leaflet custom marker */
+.custom-marker {
+    background-color: #0fccce;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* EHI color coding */
+.ehi-critical { color: #ef4444; }  /* red */
+.ehi-high { color: #f97316; }      /* orange */
+.ehi-medium { color: #eab308; }    /* yellow */
+.ehi-low { color: #22c55e; }       /* green */

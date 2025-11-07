@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered To-Do List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Set theme on initial load to prevent Flash of Unstyled Content (FOUC)
+        // Default is dark mode, unless 'light' is explicitly saved in localStorage.
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .task-item:hover .delete-btn,
+        .task-item:hover .breakdown-btn {
+            opacity: 1;
+        }
+        .delete-btn, .breakdown-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #6b7280; /* dark:text-gray-500 */
+        }
+        .loader {
+            border: 2px solid #f3f3f3; /* dark:border-gray-600 */
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #api-key-indicator {
+            transition: background-color 0.3s;
+        }
+    </style>
+
+
+
+
+
+
+<link rel="stylesheet" href="../../../ghostline-unified.css">
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <div class="container mx-auto max-w-2xl mt-12 px-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">My Tasks</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="suggest-task-btn" class="text-sm bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold py-2 px-4 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/60 transition-all flex items-center gap-2">
+                        Suggest Next Task ✨
+                    </button>
+                    <!-- Theme Toggle Button -->
+                    <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                        <svg id="theme-toggle-dark-icon" class="h-6 w-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="h-6 w-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input form -->
+            <form id="task-form" class="flex items-center gap-3 mb-6">
+                <input type="text" id="task-input" placeholder="Add a new task..." class="flex-grow bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                    Add
+                </button>
+            </form>
+
+            <!-- Task list -->
+            <ul id="task-list" class="space-y-3"></ul>
+        </div>
+
+        <!-- API Key Input Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 mt-6">
+             <div class="flex items-center gap-3">
+                <label for="api-key-input" class="font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Gemini API ključ:</label>
+                <input type="password" id="api-key-input" placeholder="Vstavi svoj ključ tukaj..." class="flex-grow bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 dark:text-gray-200">
+                <span id="api-key-indicator" class="w-4 h-4 rounded-full bg-red-500" title="API ključ ni nastavljen"></span>
+            </div>
+        </div>
+
+        <footer class="text-center mt-8 text-gray-500 dark:text-gray-400 text-sm">
+            <p>Powered by Gemini. Simplify your workflow.</p>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div id="suggestion-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-11/12 max-w-sm text-center">
+            <h3 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-2">✨ Your Next Focus</h3>
+            <p id="suggestion-text" class="text-gray-700 dark:text-gray-300 mb-4"></p>
+            <button id="close-suggestion-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                Got it!
+            </button>
+        </div>
+    </div>
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-11/12 max-w-sm text-center">
+            <h3 class="text-lg font-bold text-red-600 dark:text-red-400 mb-2">Error</h3>
+            <p id="error-message" class="text-gray-700 dark:text-gray-300 mb-4">Could not perform AI action.</p>
+            <button id="close-error-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const taskForm = document.getElementById('task-form');
+        const taskInput = document.getElementById('task-input');
+        const taskList = document.getElementById('task-list');
+        const errorModal = document.getElementById('error-modal');
+        const errorMessage = document.getElementById('error-message');
+        const closeErrorBtn = document.getElementById('close-error-btn');
+        const suggestTaskBtn = document.getElementById('suggest-task-btn');
+        const suggestionModal = document.getElementById('suggestion-modal');
+        const suggestionText = document.getElementById('suggestion-text');
+        const closeSuggestionBtn = document.getElementById('close-suggestion-btn');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const apiKeyIndicator = document.getElementById('api-key-indicator');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // --- Functions ---
+        const updateThemeIcons = () => {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleDarkIcon.classList.remove('hidden');
+                themeToggleLightIcon.classList.add('hidden');
+            } else {
+                themeToggleDarkIcon.classList.add('hidden');
+                themeToggleLightIcon.classList.remove('hidden');
+            }
+        };
+
+        const updateApiKeyStatus = (isSet) => {
+            apiKeyIndicator.classList.toggle('bg-red-500', !isSet);
+            apiKeyIndicator.classList.toggle('bg-green-500', isSet);
+            apiKeyIndicator.title = isSet ? 'API ključ je nastavljen' : 'API ključ ni nastavljen';
+        };
+
+        const createTaskElement = (taskText) => {
+            const li = document.createElement('li');
+            li.className = 'task-item bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg flex items-center justify-between transition hover:bg-gray-100 dark:hover:bg-gray-700';
+            const taskContent = document.createElement('div');
+            taskContent.className = 'flex items-center flex-grow';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'h-5 w-5 rounded border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800';
+            checkbox.addEventListener('change', () => span.classList.toggle('completed'));
+            const span = document.createElement('span');
+            span.textContent = taskText;
+            span.className = 'flex-grow ml-4';
+            taskContent.append(checkbox, span);
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'flex items-center gap-2';
+            const breakdownBtn = document.createElement('button');
+            breakdownBtn.innerHTML = 'Breakdown Task ✨';
+            breakdownBtn.className = 'breakdown-btn text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold py-1 px-3 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800/60 transition-all';
+            breakdownBtn.onclick = () => breakdownTask(taskText, li, breakdownBtn);
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '&#x1F5D1;';
+            deleteBtn.className = 'delete-btn text-red-500 hover:text-red-700 font-bold text-lg';
+            deleteBtn.onclick = () => li.remove();
+            buttonsContainer.append(breakdownBtn, deleteBtn);
+            li.append(taskContent, buttonsContainer);
+            return li;
+        };
+
+        const showError = (message) => {
+            errorMessage.textContent = message || 'An unknown error occurred. Please try again.';
+            errorModal.classList.remove('hidden');
+        };
+
+        // --- API Call Functions ---
+        async function breakdownTask(taskText, originalTaskElement, button) {
+            button.innerHTML = '<div class="loader"></div>';
+            button.disabled = true;
+            const prompt = `You are an expert project manager. Break down the following complex task into a short list of simple, actionable sub-tasks. Provide the output as a JSON object with a single key "subtasks" which is an array of strings. Task: "${taskText}"`;
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json", responseSchema: { type: "OBJECT", properties: { subtasks: { type: "ARRAY", items: { type: "STRING" } } }, required: ["subtasks"] } }
+            };
+            try {
+                const result = await callGeminiApi(payload);
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const { subtasks } = JSON.parse(jsonText);
+                if (subtasks && subtasks.length > 0) {
+                    subtasks.forEach(subtask => {
+                        const subtaskElement = createTaskElement(subtask);
+                        subtaskElement.style.marginLeft = '20px';
+                        taskList.insertBefore(subtaskElement, originalTaskElement.nextSibling);
+                    });
+                    originalTaskElement.remove();
+                } else {
+                   showError('Gemini returned no sub-tasks. Try a more complex task.');
+                }
+            } catch (error) {
+                console.error('Breakdown task failed:', error);
+                showError(error.message);
+            } finally {
+                button.innerHTML = 'Breakdown Task ✨';
+                button.disabled = false;
+            }
+        }
+
+        async function suggestNextTask() {
+            const allTasks = [...taskList.querySelectorAll('.task-item span:not(.completed)')].map(span => span.textContent);
+            if (allTasks.length < 2) {
+                showError('Please add at least two tasks to get a suggestion.');
+                return;
+            }
+            const originalButtonText = suggestTaskBtn.innerHTML;
+            suggestTaskBtn.innerHTML = '<div class="loader"></div>';
+            suggestTaskBtn.disabled = true;
+            const prompt = `You are a productivity coach. Given the following to-do list, which single task should I focus on next to be most effective? Consider potential quick wins to build momentum and tasks that might unblock others. Respond with only the text of the suggested task and nothing else. Here is the list:\n- ${allTasks.join('\n- ')}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            try {
+                const result = await callGeminiApi(payload);
+                const suggestedTask = result.candidates[0].content.parts[0].text;
+                suggestionText.textContent = suggestedTask;
+                suggestionModal.classList.remove('hidden');
+            } catch (error) {
+                console.error('Suggest task failed:', error);
+                showError(error.message);
+            } finally {
+                suggestTaskBtn.innerHTML = originalButtonText;
+                suggestTaskBtn.disabled = false;
+            }
+        }
+
+        async function callGeminiApi(payload) {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) throw new Error('Gemini API ključ ni nastavljen. Prosim, vnesi ga spodaj.');
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            let attempts = 0;
+            const maxAttempts = 3;
+            while (attempts < maxAttempts) {
+                try {
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API request failed: ${errorData.error.message}`);
+                    }
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0) return result;
+                    throw new Error('Unexpected response structure from the API.');
+                } catch (error) {
+                    attempts++;
+                    if (attempts >= maxAttempts) throw error;
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempts) * 100));
+                }
+            }
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedApiKey = localStorage.getItem('geminiApiKey');
+            updateApiKeyStatus(!!savedApiKey);
+            if (savedApiKey) apiKeyInput.value = savedApiKey;
+            updateThemeIcons();
+        });
+
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                taskList.appendChild(createTaskElement(taskText));
+                taskInput.value = '';
+            }
+        });
+
+        apiKeyInput.addEventListener('input', () => {
+            const key = apiKeyInput.value.trim();
+            if (key) localStorage.setItem('geminiApiKey', key);
+            else localStorage.removeItem('geminiApiKey');
+            updateApiKeyStatus(!!key);
+        });
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            updateThemeIcons();
+        });
+
+        closeErrorBtn.addEventListener('click', () => errorModal.classList.add('hidden'));
+        closeSuggestionBtn.addEventListener('click', () => suggestionModal.classList.add('hidden'));
+        suggestTaskBtn.addEventListener('click', suggestNextTask);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "id": 6,
+  "title": "SIJ Greenwashing - Hidden Steel Bill",
+  "slug": "sij-greenwashing-hidden-steel-bill",
+  "category": "Energetika",
+  "location": "Jesenice",
+  "ehi": 0.7,
+  "promise": "Uporabljali bomo 100% zeleno elektriko do 2026.",
+  "reality": "Poraba kovanega koksa ostaja 480 kt/leto, emisije CO2 pa so 6% višje.",
+  "description": "Notranji dopis razkrije, da je dekarbonizacija zgolj prepakiranje obstoječih peči.",
+  "date": "2025-02-01",
+  "featured": true,
+  "tags": [
+    "jeklo",
+    "greenwashing",
+    "arso"
+  ],
+  "lat": 46.4309,
+  "lon": 14.0501,
+  "emissions": {},
+  "sources": [
+    "ARSO Monitoring 2024",
+    "SIJ Sustainability 2025"
+  ],
+  "author": "Projekt Orion",
+  "lastUpdated": "2025-11-07",
+  "actions": [
+    "Oddaj ZDIJZ zahtevo za SIJ Greenwashing - Hidden Steel Bill.",
+    "Kontaktiraj lokalne medije v Jesenice.",
+    "Deli raziskavo #sij-greenwashing-hidden-steel-bill na družbenih omrežjih."
+  ],
+  "fileType": "markdown",
+  "attachments": [
+    "Dumps/research/sij-greenwashing.md"
+  ]
+}

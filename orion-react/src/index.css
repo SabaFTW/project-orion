@@ -1,0 +1,45 @@
+/* Import Gemini Design Tokens */
+@import './design-tokens.css';
+
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+/* Maps */
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--line-height-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility helpers */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.bg-surface { background-color: var(--surface); }
+.bg-background { background-color: var(--background); }
+.font-mono { font-family: var(--font-mono); }
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  border-radius: var(--radius-card);
+}
