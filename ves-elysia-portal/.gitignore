@@ -2,3 +2,4 @@ logs/*
 !logs/.gitkeep
 memory/*
 !memory/.gitkeep
+!memory/sessions/
