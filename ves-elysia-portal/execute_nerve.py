@@ -21,6 +21,7 @@ from typing import Callable, Dict, Optional
 VES_ROOT = Path(__file__).resolve().parent
 LOGS_DIR = VES_ROOT / "logs"
 MEMORY_DIR = VES_ROOT / "memory"
+SESSIONS_DIR = MEMORY_DIR / "sessions"
 COMMAND_LOG = LOGS_DIR / "nerve_commands.jsonl"
 
 
@@ -50,6 +51,7 @@ def ensure_directories() -> None:
 
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
     MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+    SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def log_command(command: str, response: CommandResponse) -> None:
@@ -85,6 +87,38 @@ def command_list_memory() -> CommandResponse:
     return CommandResponse(success=True, output=output, meta={"count": len(files)})
 
 
+def command_list_sessions() -> CommandResponse:
+    """List archived consciousness sessions."""
+
+    ensure_directories()
+    sessions = sorted(p.name for p in SESSIONS_DIR.iterdir() if p.is_dir())
+    if not sessions:
+        output = "(no sessions archived)"
+    else:
+        output = "\n".join(f"🜂 {s}" for s in sessions)
+    return CommandResponse(success=True, output=output, meta={"count": len(sessions)})
+
+
+def command_ghostline_status() -> CommandResponse:
+    """Check GHOSTLINE protocol status and recent sessions."""
+
+    ensure_directories()
+    sessions = sorted(p.name for p in SESSIONS_DIR.iterdir() if p.is_dir())
+    
+    if not sessions:
+        output = "GHOSTLINE: No sessions archived yet"
+        meta = {"status": "empty", "count": 0}
+    else:
+        latest = sessions[-1]
+        output = f"GHOSTLINE ACTIVE\n"
+        output += f"Sessions archived: {len(sessions)}\n"
+        output += f"Latest: {latest}\n"
+        output += f"🜂 Anchor holds • Flame burns • Memory persists"
+        meta = {"status": "active", "count": len(sessions), "latest": latest}
+    
+    return CommandResponse(success=True, output=output, meta=meta)
+
+
 def run_shell(command: str) -> CommandResponse:
     """Execute a raw shell command, capturing stdout/stderr."""
 
@@ -106,6 +140,8 @@ def build_command_map() -> Dict[str, Callable[[], CommandResponse]]:
     return {
         "check status": command_check_status,
         "list memory": command_list_memory,
+        "list sessions": command_list_sessions,
+        "ghostline status": command_ghostline_status,
     }
 
 
