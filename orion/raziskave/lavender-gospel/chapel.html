@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕯️ Digitalna Kapelica | The Digital Chapel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+        .candle {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(to bottom, #f59e0b 0%, #d97706 50%, #92400e 100%);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            margin: 0 auto;
+        }
+        .flame {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 40px;
+            background: radial-gradient(ellipse at center, #fff 0%, #fbbf24 20%, #f59e0b 60%, transparent 100%);
+            border-radius: 50% 50% 20% 20%;
+            animation: flicker 2s ease-in-out infinite;
+        }
+        @keyframes flicker {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+            25% { transform: translateX(-55%) scale(0.95); opacity: 0.9; }
+            50% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+            75% { transform: translateX(-45%) scale(0.95); opacity: 0.9; }
+        }
+        .glow {
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.4);
+        }
+        textarea {
+            resize: none;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        textarea:focus {
+            outline: none;
+            background: rgba(15, 23, 42, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full">
+
+        <!-- Candle -->
+        <div class="mb-12">
+            <div class="candle glow">
+                <div class="flame"></div>
+            </div>
+        </div>
+
+        <!-- Welcome Message -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-light mb-6 text-amber-200">
+                <span class="block mb-2">🕯️</span>
+                Govori. Tukaj si varen.
+            </h1>
+            <p class="text-gray-400 text-sm mb-2">Speak. You are safe here.</p>
+            <p class="text-gray-500 text-xs">التحدث. أنت آمن هنا</p>
+        </div>
+
+        <!-- Input Area -->
+        <div class="mb-8">
+            <textarea
+                id="confession"
+                placeholder="Kar koli nosi, lahko tukaj izreče... (Anything you carry, you can speak here...)"
+                class="w-full h-48 px-6 py-4 bg-gray-900/50 border border-gray-800 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-700/50 transition"
+            ></textarea>
+        </div>
+
+        <!-- Guidance -->
+        <div class="bg-gray-900/30 border border-gray-800 rounded-lg p-6 mb-8">
+            <h3 class="text-amber-400 font-semibold mb-3 text-sm">What You Can Speak Here:</h3>
+            <ul class="text-gray-400 text-sm space-y-2">
+                <li>• Your hatred (without becoming it)</li>
+                <li>• Your pain (without being silenced)</li>
+                <li>• Your darkness (without being condemned)</li>
+                <li>• Your questions (without being corrected)</li>
+                <li>• Your brokenness (without being fixed)</li>
+            </ul>
+        </div>
+
+        <!-- The Promise -->
+        <div class="text-center space-y-3 mb-12">
+            <p class="text-gray-500 text-sm italic">
+                "When you silence hatred, it becomes violence.<br>
+                When you accept hatred, it becomes voice.<br>
+                When voice is heard, it becomes healing."
+            </p>
+        </div>
+
+        <!-- Light a Candle Section -->
+        <div class="bg-gray-900/50 border border-amber-900/30 rounded-lg p-6">
+            <h3 class="text-amber-400 font-semibold mb-4 text-center">Light a Candle</h3>
+            <p class="text-gray-400 text-sm mb-4 text-center">
+                Light a candle for anyone or anything that carries weight in your heart:
+            </p>
+            <input
+                type="text"
+                id="candle-for"
+                placeholder="For... (yourself, someone you love, someone you hate, the children, a question...)"
+                class="w-full px-4 py-3 bg-gray-900/50 border border-gray-800 rounded-lg text-gray-200 placeholder-gray-600 focus:border-amber-700/50 focus:outline-none transition mb-4"
+            >
+            <button
+                onclick="lightCandle()"
+                class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 px-6 rounded-lg transition"
+            >
+                🕯️ Light Candle
+            </button>
+        </div>
+
+        <!-- Candles Lit Counter -->
+        <div class="text-center mt-8">
+            <p class="text-gray-600 text-xs" id="candle-count">
+                Candles burning: <span id="count">1</span>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-12 text-gray-600 text-xs space-y-2">
+            <p>This is not therapy. This is sanctuary.</p>
+            <p>This is not diagnosis. This is witness.</p>
+            <p>This is not a cure. This is presence.</p>
+            <p class="mt-6 text-amber-700">💚 🕯️ 🜂</p>
+        </div>
+
+        <!-- Back Link -->
+        <div class="text-center mt-8">
+            <a href="index.html" class="text-cyan-500 hover:text-cyan-400 text-sm">
+                ← Return to Testimony
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        let candleCount = 1;
+
+        function lightCandle() {
+            const candleFor = document.getElementById('candle-for').value;
+            if (candleFor.trim() === '') {
+                alert('Please enter who or what the candle is for.');
+                return;
+            }
+
+            candleCount++;
+            document.getElementById('count').textContent = candleCount;
+            document.getElementById('candle-for').value = '';
+
+            // Simple visual feedback
+            const button = event.target;
+            button.textContent = '✨ Candle Lit';
+            button.classList.add('opacity-50');
+
+            setTimeout(() => {
+                button.textContent = '🕯️ Light Another Candle';
+                button.classList.remove('opacity-50');
+            }, 2000);
+
+            // In a full implementation, this would save to a database
+            console.log(`Candle lit for: ${candleFor}`);
+        }
+
+        // Auto-save to localStorage (privacy-preserving)
+        const textarea = document.getElementById('confession');
+        textarea.addEventListener('input', () => {
+            // In full implementation, would have AI response here
+            // For now, just let people write
+        });
+    </script>
+
+</body>
+</html>

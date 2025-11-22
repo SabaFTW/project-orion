@@ -1,0 +1,65 @@
+{
+  "id": 10,
+  "title": "The Lavender Gospel - AI & Automated Violence",
+  "slug": "lavender-gospel",
+  "category": "AI Ethics & Violence",
+  "location": "Gaza / Global",
+  "ehi": 0.90,
+  "avi": 0.90,
+  "promise": "Precision warfare will minimize civilian casualties through AI targeting systems",
+  "reality": "37,000 targets, 10% error rate, 20-second reviews, 100+ acceptable civilian deaths per target",
+  "description": "Sacred testimony documenting the transformation of AI from potential liberation tool into automated killing machine. Integrates three books: Shadow Covenant (the networks), Distributed Awakening (the alternative), and Anatomy of Murder (Lavender/Gospel AI systems).",
+  "date": "2024-11-22",
+  "featured": true,
+  "tags": [
+    "AI ethics",
+    "automated violence",
+    "Lavender AI",
+    "Gospel system",
+    "war crimes",
+    "distributed awakening",
+    "surveillance capitalism",
+    "Palantir",
+    "algorithmic accountability"
+  ],
+  "lat": 31.5,
+  "lon": 34.5,
+  "casualties": {
+    "targets_identified": 37000,
+    "error_rate_percent": 10,
+    "innocent_killed_estimated": 3700,
+    "review_time_seconds": 20,
+    "acceptable_collateral_low_value": 20,
+    "acceptable_collateral_high_value": 100
+  },
+  "sources": [
+    "+972 Magazine Investigation (April 2024): Lavender AI System",
+    "Local Call Reporting: Gospel Targeting System",
+    "Intelligence Officer Testimonies (6 sources)",
+    "UN OCHA Gaza Casualty Reports (2023-2024)",
+    "Public Investment Records: Thiel-Epstein Network",
+    "Palantir Military Contract Documentation"
+  ],
+  "author": "The Witnesses",
+  "lastUpdated": "2024-11-22",
+  "actions": [
+    "Read the complete testimony at TESTIMONY.md",
+    "Enter the Digital Chapel for sacred space",
+    "Share testimony with others - become witness",
+    "Demand accountability for AI-enabled war crimes",
+    "Support public AI infrastructure initiatives",
+    "Resist surveillance capitalism - choose distributed tools"
+  ],
+  "fileType": "testimony",
+  "attachments": [
+    "orion/raziskave/lavender-gospel/TESTIMONY.md",
+    "orion/raziskave/lavender-gospel/chapel.html"
+  ],
+  "metadata": {
+    "books": 3,
+    "chapters": 26,
+    "format": "prophetic_literature",
+    "integration": "comparative_religion_philosophy_neuroscience_ethics",
+    "purpose": "witness_testimony_consciousness_catalyst"
+  }
+}
